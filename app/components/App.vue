@@ -21,7 +21,7 @@
                 @selectedIndexChange="tabChanged"
                 iosIconRenderingMode="alwaysOriginal"
                 selectedTabTextColor="#ffffff">
-            <TabViewItem title="" :iconSource="selectedIndex == 0 ? 'res://chat_white' : 'res://chat_black'">
+            <TabViewItem bageValue="50" title="" :iconSource="selectedIndex == 0 ? 'res://chat_white' : 'res://chat_black'">
                 <!--<chat-view style=""/>-->
                 <Frame>
                     <chat-list-page></chat-list-page>

@@ -23,41 +23,35 @@
                        @submit="onSubmit" />
 
             <ScrollView orientation="vertical" height="100%">
-
                 <RadListView ref="listView"
-                             for="item in listItems"
-                             layout="linear"
-                             separatorColor="#f0f0f0"
-                             :multipleSelection="true"
-                             :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
-                             @itemSelected="onItemSelected"
-                             @itemDeselected="onItemDeselected"
-                             pullToRefresh="true"
-                             swipeActions="false"
-                             @pullToRefreshInitiated="onPullToRefreshInitiated"
-                             @itemSwipeProgressStarted="onSwipeStarted"
-                             @itemTap="onItemTap">
+                     for="item in listItems"
+                     layout="linear"
+                     separatorColor="#f0f0f0"
+                     :multipleSelection="true"
+                     :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
+                     @itemSelected="onItemSelected"
+                     @itemDeselected="onItemDeselected"
+                     pullToRefresh="true"
+                     swipeActions="false"
+                     @pullToRefreshInitiated="onPullToRefreshInitiated"
+                     @itemSwipeProgressStarted="onSwipeStarted"
+                     @itemTap="onItemTap">
                     <v-template>
                         <FlexboxLayout :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
                             <Image src="~/assets/images/avatar.png" stretch="aspectFit" class="img-rounded img-thumbnail" width="50"/>
                             <FlexboxLayout flexDirection="column">
-                                <Label class="p-10 user-name" marginTop="2">El Manifico</Label>
-                                <Label class="p-10 message-preview" :textWrap="false" width="80%">Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
+                                <FlexboxLayout flexDirection="row" justifyContent="space-between">
+                                    <Label class="p-10 user-name" marginTop="2">El Manifico</Label>
+                                    <Label class="p-10 msg-date" marginTop="2">
+                                        <FormattedString>
+                                            <Span text="02/02/2018 " />
+                                            <Span text="9+" class="badge" />
+                                        </FormattedString>
+                                    </Label>
+                                </FlexboxLayout>
+                                <Label class="p-10 message-preview" :textWrap="false" width="88%">Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
                             </FlexboxLayout>
                         </FlexboxLayout>
-                    </v-template>
-
-                    <v-template name="itemswipe" v-if="false">
-                        <GridLayout columns="auto, *, auto" backgroundColor="White">
-                            <StackLayout id="mark-view" col="0" class="swipe-item left"
-                                         orientation="horizontal" @tap="onLeftSwipeClick">
-                                <Label text="mark" verticalAlignment="center" horizontalAlignment="center"/>
-                            </StackLayout>
-                            <StackLayout id="delete-view" col="2" class="swipe-item right"
-                                         orientation="horizontal" @tap="onRightSwipeClick">
-                                <Label text="delete" verticalAlignment="center" horizontalAlignment="center" />
-                            </StackLayout>
-                        </GridLayout>
                     </v-template>
                 </RadListView>
             </ScrollView>
@@ -133,10 +127,14 @@
             },
             onPullToRefreshInitiated: function ({object}) {
                 console.log('Pulling...');
-                setTimeout(() => {
-                    this.listItems.push(Math.random() * 1000);
+                if (this.selectedItems.length) {
                     object.notifyPullToRefreshFinished();
-                }, 5000)
+                } else {
+                    setTimeout(() => {
+                        this.listItems.push(Math.random() * 1000);
+                        object.notifyPullToRefreshFinished();
+                    }, 5000)
+                }
             },
             onSwipeStarted ({ data, object }) {
                 console.log(`Swipe started`);
@@ -187,5 +185,18 @@
 
     .selected {
 
+    }
+    .item-row {
+        border-bottom: 5px solid red;
+    }
+
+    .msg-date {
+        font-size: 10;
+        font-style: italic;
+    }
+
+    .badge {
+        color: #ec4980;
+        font-size: 12;
     }
 </style>
