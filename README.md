@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NativeScript Vue Blank Template
 App templates help you jump start your native cross-platform apps with built-in UI elements and best practices. Save time writing boilerplate code over and over again when you create new apps.
 
@@ -38,3 +39,6 @@ If you have found an issue with this template, please report the problem in the 
 ## Contributing
 
 We love PRs, and accept them gladly. Feel free to propose changes and new ideas. We will review and discuss, so that they can be accepted and better integrated.
+=======
+# selam-mobile
+>>>>>>> 55d8a0fe71bc5f29b2a0de6d5cc5fde22fa5061b
