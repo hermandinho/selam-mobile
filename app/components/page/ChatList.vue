@@ -24,9 +24,8 @@
 
             <ScrollView orientation="vertical" height="100%">
                 <RadListView ref="listView"
-                     for="item in listItems"
+                     for="(item, index) in listItems"
                      layout="linear"
-                     separatorColor="#f0f0f0"
                      :multipleSelection="true"
                      :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
                      @itemSelected="onItemSelected"
@@ -37,7 +36,7 @@
                      @itemSwipeProgressStarted="onSwipeStarted"
                      @itemTap="onItemTap">
                     <v-template>
-                        <FlexboxLayout :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
+                        <FlexboxLayout :key="index" :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
                             <Image src="~/assets/images/avatar.png" stretch="aspectFit" class="img-rounded img-thumbnail" width="50"/>
                             <FlexboxLayout flexDirection="column">
                                 <FlexboxLayout flexDirection="row" justifyContent="space-between">
@@ -49,7 +48,8 @@
                                         </FormattedString>
                                     </Label>
                                 </FlexboxLayout>
-                                <Label class="p-10 message-preview" :textWrap="false" width="88%">Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
+                                <Label class="p-10 message-preview"
+                                       :textWrap="false" width="90%" opacity="0.6">Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
                             </FlexboxLayout>
                         </FlexboxLayout>
                     </v-template>
@@ -82,7 +82,7 @@
                   animated: true,
                   transition: {
                       name: "slide",
-                      duration: 150,
+                      duration: 250,
                       curve: "easeIn"
                   },
                   props: {
@@ -96,7 +96,6 @@
                 this.setSelectedItems();
             },
             onItemDeselected: function ({ index, object }) {
-
                 //const itemSelected = this.listItems[index]
                 //console.log(`Item deselected ${itemSelected}`);
                 this.setSelectedItems();

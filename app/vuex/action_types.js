@@ -1,0 +1,3 @@
+export const TEST = 'TEST_ACTION';
+export const PUSHER_INSTANCE = 'PUSHER_INSTANCE';
+export const PUSHER_CHANNEL = 'PUSHER_CHANNEL';
