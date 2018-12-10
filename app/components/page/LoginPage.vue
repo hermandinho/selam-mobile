@@ -7,7 +7,7 @@
         <Gradient direction="to right" colors="#ec4980, #Ac4980">
             <FlexboxLayout flexDirection="column" justifyContent="center" class="full-height">
 
-                <Image src="res://basket_white" class="logo"/>
+                <Image src="res://shopping_bag_logo" class="logo"/>
 
                 <StackLayout class="container">
                     <FlexboxLayout alignItems="center" class="border-bottom" v-if="!isLogin">
@@ -191,7 +191,7 @@
     }
 
     .my-btn.disabled {
-        background-color: grey;
+        background-color: lightgray;
     }
 
     .links {

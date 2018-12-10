@@ -23,11 +23,13 @@
                 </Frame>
             </TabViewItem>
             <TabViewItem :bageValue="x" title="" :iconSource="selectedIndex == 2 ? 'res://settings_white' : 'res://settings_black'">
-
-                <DockLayout width="210" height="210" backgroundColor="lightgray" stretchLastChild="false">
+                <Frame>
+                    <settings-page></settings-page>
+                </Frame>
+                <!--<DockLayout width="210" height="210" backgroundColor="lightgray" stretchLastChild="false">
                     <Label :text="getToken" textWrap="true" dock="top" height="200" backgroundColor="green"/>
                     <Label text="Logout" dock="bottom" height="60" backgroundColor="yellow" @tap="logout" />
-                </DockLayout>
+                </DockLayout>-->
             </TabViewItem>
         </TabView>
     </Page>
@@ -40,6 +42,7 @@
     import Vuex from 'vuex';
     import ChatListPage from './page/ChatList';
     import ArticlesListPage from './page/ArticlesListPage';
+    import SettingsPage from './page/SettingsPage';
     import LoginPage from './page/LoginPage'
     import { isIOS, isAndroid } from 'platform';
     import { ContentView } from 'ui/content-view';
@@ -166,7 +169,8 @@
         components: {
             ChatListPage,
             ArticlesListPage,
-            LoginPage
+            LoginPage,
+            SettingsPage
         },
         mounted: function () {
             app.on(app.launchEvent, (args) => {

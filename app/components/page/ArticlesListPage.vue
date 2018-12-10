@@ -14,9 +14,9 @@
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ data.length }} résultats</Label>
-                <Label class="date-filter" col="1" row="0">Date Filter</Label>
-                <Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
-                <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>
+                <Image src="res://filter_primary" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
+                <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
+                <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
 
             <ScrollView orientation="vertical" height="100%" row="2">
@@ -44,6 +44,7 @@
                 class="fab-button"
             ></fab>
         </GridLayout>
+        &uparrow;
     </Page>
 </template>
 
@@ -60,7 +61,7 @@
             return {
                 searchPhrase: '',
                 viewMode: 'grid',
-                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
             }
         },
         watch: {
@@ -99,7 +100,6 @@
                 })
             },
             showDetails: function (row) {
-                console.log(row.item);
                 this.$navigateTo(Details, {
                     animated: true,
                     props: {
@@ -111,6 +111,20 @@
                         curve: "easeOut"
                     },
                 });
+            },
+            showFilters: function () {
+                action('Filtrer par ?', 'Annuler',['Date ↑', 'Date ↓', 'Prix ↑', 'Prix ↓']).then( choice => {
+                    switch (choice) {
+                        case 'Date ↑':
+                            alert('Date Croissant');break;
+                        case 'Date ↓':
+                            alert('Date Décroissant');break;
+                        case 'Prix ↑':
+                            alert('Prix Croissant');break;
+                        case 'Prix ↓':
+                            alert('Prix Décroissant');break;
+                    }
+                } )
             }
         },
         components: {

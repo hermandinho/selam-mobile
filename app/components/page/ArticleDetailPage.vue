@@ -6,7 +6,7 @@
         </ActionBar>
 
         <ScrollView orientation="vertical" >
-            <GridLayout columns="2*,*" rows="auto,auto,auto,auto,auto,auto,auto" width="100%" class="container m-10">
+            <GridLayout columns="2*,*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container m-10">
                 <Label class="label title" text="Iphone 5S en bonne état a vendre a un bon prix." textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" text="120 000 CFA" width="auto" col="1" row="0"/>
 
@@ -32,22 +32,31 @@
                     </FormattedString>
                 </TextView>
 
-                <TextView editable="false" row="4" col="0" colSpan="2" class="no-border-bottom contact-info-zone" borderBottomWidth="0" borderColor="green">
+                <Label row="4" col="0" colSpan="2" class="no-border-bottom contact-info-zone" borderBottomWidth="0" borderColor="green">
                     <FormattedString>
                         <Span text="Publié le: " class="bold-label" fontWeight="Bold"/>
                         <Span text="20/12/2018"  fontWeight="Italic"/>
                     </FormattedString>
-                </TextView>
+                </Label>
 
-                <TextView editable="false" row="5" col="0" colSpan="2" class="no-border-bottom" borderBottomWidth="0">
+                <Label row="5" col="0" colSpan="2" class="no-border-bottom" borderBottomWidth="0">
                     <FormattedString>
                         <Span text="Par: " class="bold-label" fontWeight="Bold"/>
                         <Span text="El manifico" fontWeight="Italic" />
                     </FormattedString>
-                </TextView>
+                </Label>
 
-                <FlexboxLayout justifyContent="space-around" alignItems="center" flexDirection="columns" row="6" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
-                    <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
+                <Label text="OPTIONS" row="6" col="0" colSpan="2" class="label options"/>
+                <GridLayout columns="auto,auto" rows="auto,auto" row="7" colSpan="2" col="0" width="100%">
+                    <Label text="Prix négociable" class=" option-label" row="0" col="0" width="50%"/>
+                    <Label text="Oui" row="0" col="1"  width="50%" class="option-value"/>
+
+                    <Label text="Echange possible" class=" option-label" row="1" col="0" width="50%"/>
+                    <Label text="Non" row="1" col="1"  width="50%" class="option-value"/>
+                </GridLayout>
+
+                <FlexboxLayout justifyContent="space-around" alignItems="center" flexDirection="columns" row="8" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
+                    <Image src="res://email_primary" stretch="aspectFill" width="75" height="75" class="contact-icon" alignSelf="center"/>
                     <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
                     <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
                 </FlexboxLayout>
@@ -106,7 +115,7 @@
         margin-bottom: 10;
     }
     .description {
-        font-size: 15;
+        font-size: 16;
     }
 
     .bold-label {
@@ -115,5 +124,24 @@
 
     .contact-info-zone {
         margin-top: 20;
+    }
+    .options {
+        margin-top: 25;
+        margin-bottom: 10;
+    }
+    .option-label, .option-value {
+        margin-bottom: 3;
+        padding: 8;
+    }
+    .option-label {
+        background-color: lightgray;
+        font-weight: bold;
+        font-size: 15;
+    }
+    .option-value {
+        text-align: center;
+    }
+    .contact-zone {
+        margin-top: 35;
     }
 </style>
