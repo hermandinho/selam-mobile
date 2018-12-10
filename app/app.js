@@ -24,8 +24,8 @@ new Vue({
     store,
     template: `
         <Frame>
-            <Login v-if="isLoggedIn" />
-            <App v-if="!isLoggedIn" />
+            <Login v-if="!isLoggedIn" />
+            <App v-if="isLoggedIn" />
         </Frame>`,
 
     components: {

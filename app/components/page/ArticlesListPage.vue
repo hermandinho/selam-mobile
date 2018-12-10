@@ -104,7 +104,12 @@
                     animated: true,
                     props: {
                         item: row.item
-                    }
+                    },
+                    transition: {
+                        name: "slide",
+                        duration: 150,
+                        curve: "easeOut"
+                    },
                 });
             }
         },

@@ -6,7 +6,7 @@
         </ActionBar>
 
         <ScrollView orientation="vertical" >
-            <GridLayout columns="2*,*" rows="auto,auto,auto,auto" width="100%" class="container m-10">
+            <GridLayout columns="2*,*" rows="auto,auto,auto,auto,auto,auto,auto" width="100%" class="container m-10">
                 <Label class="label title" text="Iphone 5S en bonne état a vendre a un bon prix." textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" text="120 000 CFA" width="auto" col="1" row="0"/>
 
@@ -31,6 +31,27 @@
                         <Span text="Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker."/>
                     </FormattedString>
                 </TextView>
+
+                <TextView editable="false" row="4" col="0" colSpan="2" class="no-border-bottom contact-info-zone" borderBottomWidth="0" borderColor="green">
+                    <FormattedString>
+                        <Span text="Publié le: " class="bold-label" fontWeight="Bold"/>
+                        <Span text="20/12/2018"  fontWeight="Italic"/>
+                    </FormattedString>
+                </TextView>
+
+                <TextView editable="false" row="5" col="0" colSpan="2" class="no-border-bottom" borderBottomWidth="0">
+                    <FormattedString>
+                        <Span text="Par: " class="bold-label" fontWeight="Bold"/>
+                        <Span text="El manifico" fontWeight="Italic" />
+                    </FormattedString>
+                </TextView>
+
+                <FlexboxLayout justifyContent="space-around" alignItems="center" flexDirection="columns" row="6" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
+                    <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
+                    <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
+                    <Image src="res://email_primary" stretch="aspectFit" width="75" height="75" class="contact-icon" alignSelf="center"/>
+                </FlexboxLayout>
+
             </GridLayout>
         </ScrollView>
     </Page>
@@ -86,6 +107,13 @@
     }
     .description {
         font-size: 15;
+    }
 
+    .bold-label {
+        font-weight: 14;
+    }
+
+    .contact-info-zone {
+        margin-top: 20;
     }
 </style>
