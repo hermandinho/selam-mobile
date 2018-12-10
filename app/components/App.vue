@@ -8,19 +8,21 @@
                 tabBackgroundColor="#ec4980"
                 @selectedIndexChange="tabChanged"
                 iosIconRenderingMode="alwaysOriginal"
-                selectedTabTextColor="#ffffff">
+                selectedTabTextColor="#ffffff"
+                @loaded="onTabViewLoaded"
+                @unloaded="onTabViewUnloaded">
             <TabViewItem bageValue="50" title="" :iconSource="selectedIndex == 0 ? 'res://chat_white' : 'res://chat_black'">
                 <!--<chat-view style=""/>-->
                 <Frame>
                     <chat-list-page></chat-list-page>
                 </Frame>
             </TabViewItem>
-            <TabViewItem title="" :iconSource="selectedIndex == 1 ? 'res://basket_white' : 'res://basket_black'">
+            <TabViewItem bageValue="1" title="" :iconSource="selectedIndex == 1 ? 'res://basket_white' : 'res://basket_black'">
                 <Frame>
                     <articles-list-page></articles-list-page>
                 </Frame>
             </TabViewItem>
-            <TabViewItem title="" :iconSource="selectedIndex == 2 ? 'res://settings_white' : 'res://settings_black'">
+            <TabViewItem :bageValue="x" title="" :iconSource="selectedIndex == 2 ? 'res://settings_white' : 'res://settings_black'">
 
                 <DockLayout width="210" height="210" backgroundColor="lightgray" stretchLastChild="false">
                     <Label :text="getToken" textWrap="true" dock="top" height="200" backgroundColor="green"/>
@@ -39,6 +41,9 @@
     import ChatListPage from './page/ChatList';
     import ArticlesListPage from './page/ArticlesListPage';
     import LoginPage from './page/LoginPage'
+    import { isIOS, isAndroid } from 'platform';
+    import { ContentView } from 'ui/content-view';
+    import { Label } from 'ui/label';
 
     export default {
         name: 'app',
@@ -46,7 +51,7 @@
             return {
                 selectedIndex: 0,
                 uuid: null,
-                pusherConnected: false
+                pusherConnected: false,
             }
         },
         computed: {
@@ -110,6 +115,52 @@
                     props: {
                     }
                 });
+            },
+            onTabViewLoaded: function ({object}) {
+                if (isAndroid) {
+                    object._badges = {};
+                    const nativeTabView = object._tabLayout.getChildAt(0);
+                    for (let i = 0; i < nativeTabView.getChildCount(); i++) {
+                        this.addBadges(object, i, nativeTabView.getChildAt(i), object.items[i].bageValue);
+                    }
+                }
+            },
+            addBadges: function(tabView, tabIndex, view, count) {
+                if (count && count > 0) {
+                    const contentView = new ContentView();
+                    contentView.className = "tab-badge";
+
+                    const label = new Label();
+                    label.className = "tab-badge-text";
+                    label.text = count > 9 ? '9+' : count;
+
+                    contentView.content = label;
+                    contentView._inheritStyleScope(tabView._styleScope);
+                    contentView._setupUI(tabView._context);
+                    contentView.onLoaded();
+
+                    view.addView(contentView.nativeView);
+                    tabView._badges[tabIndex] = contentView;
+                }
+                view.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+            },
+            onTabViewUnloaded: function ({object}) {
+                const tabView = object;
+                if (isAndroid) {
+                    const nativeTabView = tabView._tabLayout.getChildAt(0);
+                    for (let i = 0; i < nativeTabView.getChildCount(); i++) {
+                        this.removeBadges(tabView, i, nativeTabView.getChildAt(i));
+                    }
+                    tabView._badges = null;
+                }
+            },
+            removeBadges: function (tabView, tabIndex, view) {
+                const contentView = tabView._badges[tabIndex];
+                if (contentView) {
+                    contentView.content = null;
+                    view.removeView(contentView.nativeView);
+                    contentView.onUnloaded();
+                }
             }
         },
         components: {

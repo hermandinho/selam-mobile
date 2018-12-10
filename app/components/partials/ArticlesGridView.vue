@@ -7,9 +7,9 @@
         backgroundColor="transparent"
         class="m-b-10"
     >
-        <Image src="http://placehold.jp/250x250.png" stretch="aspectFill" left="0" top="0" width="100%" height="100%" class="img-thumbnail"/>
+        <Image src="res://ic_no_image" stretch="aspectFit" left="0" top="0" width="100%" height="100%" class="img-thumbnail"/>
 
-        <GridLayout row="1" col="0" backgroundColor="transparent" columns="*,*" rows="*,*,*,*" class="p-10">
+        <GridLayout row="1" col="0" backgroundColor="lightgray" columns="*,*" rows="*,*,*,*" class="p-10">
             <Label class="name" text="Article avec un tres long titre a vendre ici." row="0" col="0" />
             <Label class="price" text="5000 CFA" row="0" col="1" />
 
@@ -61,5 +61,9 @@
         font-style: italic;
         font-weight: normal;
         font-size: 10;
+    }
+    .img-thumbnail {
+        border-width: 0.5;
+        border-bottom-width: 0;
     }
 </style>
