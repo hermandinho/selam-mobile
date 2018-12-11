@@ -1,6 +1,6 @@
 <template>
     <Frame>
-        <Page>
+        <Page @navigatedTo="onNavigatedTo">
             <ActionBar class="action-bar" title="Créer une annonce">
                 <ActionItem @tap="$modal.close"
                             ios.systemIcon="9" ios.position="left"
@@ -9,50 +9,52 @@
 
             <ScrollView orientation="vertical">
                 <GridLayout columns="*,2*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container p-5 m-10">
+                    <ActivityIndicator row="4" :busy="loading" rowSpan="3" colSpan="2" color="#ec4980" />
+
                     <Label class="margin-bottom label" text="Titre" row="0" col="0" />
-                    <TextView col="1" row="0" hint="Titre" v-model="article.name" class="margin-bottom form-input" autocorrect="false"/>
+                    <TextView col="1" row="0" hint="Titre" v-model="article.title" class="margin-bottom form-input" autocorrect="false"/>
 
                     <Label class="margin-bottom label" text="Description" row="1" col="0" />
                     <TextView v-model="article.description" col="1" row="1" autocorrect="false"/>
 
                     <Label class="margin-bottom label" text="Catégorie" row="2" col="0" />
-                    <Button class="margin-bottom btn btn-outline" col="1" row="2" @tap="openCategorisSelect">{{ article.category }}</Button>
+                    <Button class="margin-bottom btn btn-outline" col="1" row="2" @tap="openCategoriesSelect">{{ selectedCategory }}</Button>
 
                     <Label class="margin-bottom label" text="Sous catégorie" row="3" col="0" />
-                    <Button class="margin-bottom btn btn-outline" col="1" row="3" @tap="openCategorisSelect">{{ article.category }}</Button>
+                    <Button class="margin-bottom btn btn-outline" col="1" row="3" @tap="openSubCategoriesSelect">{{ article.subCategory }}</Button>
 
                     <Label class="margin-bottom label" text="Pays" row="4" col="0" />
-                    <Button class="margin-bottom btn btn-outline" col="1" row="4" @tap="openCategorisSelect">{{ article.category }}</Button>
+                    <Button class="margin-bottom btn btn-outline" col="1" row="4" @tap="openCountriesSelect">{{ selectedCountry }}</Button>
 
                     <Label class="margin-bottom label" text="Ville" row="5" col="0" />
-                    <Button class="margin-bottom btn btn-outline" col="1" row="5" @tap="openCategorisSelect">{{ article.category }}</Button>
+                    <Button class="margin-bottom btn btn-outline" col="1" row="5" @tap="openRegionsSelect">{{ article.region }}</Button>
 
                     <Label class="margin-bottom label" text="Prix" row="6" col="0" />
                     <GridLayout row="6" col="1" columns="2*,*" rows="*" class="margin-bottom price-layout">
-                        <TextField col="0" row="0" hint="Prix" v-model="article.price" class="form-input" autocorrect="false" keyboardType="number"/>
-                        <Button class="btn btn-outline" col="1" row="0" @tap="openCategorisSelect">{{ article.currency }}</Button>
+                        <TextField col="0" row="0" hint="Prix" v-model="article.price.amount" class="form-input" autocorrect="false" keyboardType="number"/>
+                        <Button class="btn btn-outline" col="1" row="0" @tap="openCurrenciesSelect">{{ article.currency }}</Button>
                     </GridLayout>
 
                     <Label class="margin-bottom label" text="Images" row="7" col="0" />
                     <Button class="btn btn-outline" col="1" row="7" @tap="selectPictures">Choisir</Button>
 
-                    <WrapLayout v-if="article.images.length" orientation="horizontal" row="8" col="0" colSpan="2" class="margin-bottom preview-images p-r-10" width="auto" height="auto">
+                    <WrapLayout v-if="article.pictures.length" orientation="horizontal" row="8" col="0" colSpan="2" class="margin-bottom preview-images p-r-10" width="auto" height="auto">
                         <Image
                             :src="'data:Image/png;base64,' + img"
                             stretch="aspectFill"
                             width="75"
                             height="75"
-                            v-for="(img, i) in article.images"
+                            v-for="(img, i) in article.pictures"
                             class="img-thumbnail img-rounded"
                             @longPress="selectedImage(img)"
                         />
                     </WrapLayout>
 
                     <Label class="margin-bottom label" text="Prix fixe" row="9" col="0" />
-                    <Switch class="fixed-price-switch" v-model="article.fixedPrice"  col="1" row="9"/>
+                    <Switch class="fixed-price-switch" v-model="article.price.fixed"  col="1" row="9"/>
 
                     <Label class="margin-bottom label" text="Echange possible" row="10" col="0" />
-                    <Switch class="fixed-price-switch" v-model="article.accecpExchange"  col="1" row="10"/>
+                    <Switch class="fixed-price-switch" v-model="article.exchange"  col="1" row="10"/>
 
                     <Button @tap="submit" row="11" colSpan="2" :text="busy ? 'En cours ... ' : 'Publier'" class="btn btn-primary" :isEnabled="!busy"/>
                 </GridLayout>
@@ -65,6 +67,10 @@
 <script>
     const imagepicker = require("nativescript-imagepicker");
     import { fromAsset, fromBase64 } from "tns-core-modules/image-source";
+    import API from '../../api'
+
+    const CHOOSE_LABEL = 'Choisir';
+    const CLOSE_LABEL = 'Fermer';
 
     export default {
         name: "add-article-modal",
@@ -73,22 +79,124 @@
                 article: {
                     title: '',
                     description: 'La description de mon article.',
-                    price: '',
+                    price: {
+                        amount: '0.0',
+                        fixed: true
+                    },
                     currency: 'CFA',
-                    category: 'Choisir',
-                    images: [],
-                    fixedPrice: false,
-                    accecpExchange: false
+                    pictures: [],
+                    exchange: true,
+                    user: '',
+                    region: 'Choisir',
+                    subCategory: 'Choisir',
+                    published: true,
+                    available: true,
                 },
-                busy: false
+                busy: false,
+                loading: false,
+                selectedCategory: CHOOSE_LABEL,
+                selectedCountry: CHOOSE_LABEL,
+                filters: {
+                    countries: [],
+                    towns: [],
+                    townsActions: [],
+                    categories: [],
+                    subCategories: [],
+                    subCategoriesActions: [],
+                    currenciesActions: []
+                }
+            }
+        },
+        watch: {
+            selectedCategory: function (n, o) {
+                if (n === CHOOSE_LABEL) {
+                    this.filters.subCategoriesActions = [];
+                    this.article.subCategory = CHOOSE_LABEL;
+                } else {
+                    let actions = [];
+                    this.filters.subCategories.map(s => {
+                        if (s.category.name === n) {
+                            actions.push(s.name);
+                        }
+                    });
+                    this.filters.subCategoriesActions = actions;
+                    this.article.subCategory = this.filters.subCategoriesActions[0] || CHOOSE_LABEL;
+                }
+            },
+            selectedCountry: function (n) {
+                if (n === CHOOSE_LABEL) {
+                    this.article.region = CHOOSE_LABEL;
+                    this.filters.townsActions = [];
+                } else {
+                    let actions = [];
+                    this.filters.currenciesActions = [];
+                    this.filters.countries.map(c => {
+                        if (c.name === n && this.filters.currenciesActions.indexOf(c.currency) === -1) {
+                            this.filters.currenciesActions.push(c.currency);
+                        }
+                    });
+
+                    this.filters.towns.map(s => {
+                        if (s.country.name === n) {
+                            actions.push(s.name);
+                        }
+                    });
+                    this.filters.townsActions = actions;
+                    this.article.region = this.filters.townsActions[0] || CHOOSE_LABEL;
+                    this.article.currency = this.filters.currenciesActions[0] || CHOOSE_LABEL;
+                }
             }
         },
         methods: {
-            openCategorisSelect: function () {
-                action("Your message", "Annuler", ["Option1", "Option2"])
+            openCurrenciesSelect: function () {
+                action("Sélectionnez une monaie", CLOSE_LABEL, this.filters.currenciesActions)
                 .then(result => {
-                    this.article.category = result;
+                    if (result !== CLOSE_LABEL)
+                        this.selectedCategory = result;
                 });
+            },
+            openCategoriesSelect: function () {
+                let actions = [];
+                this.filters.categories.map(c => {
+                    actions.push(c.name);
+                });
+                action("Sélectionnez une catégorie", CLOSE_LABEL, actions)
+                .then(result => {
+                    if (result !== CLOSE_LABEL)
+                        this.selectedCategory = result;
+                });
+            },
+            openSubCategoriesSelect: function () {
+                if (!this.filters.categories.length || this.selectedCategory === CHOOSE_LABEL) {
+                    return;
+                }
+                action("Sélectionnez une sous-catégorie", CLOSE_LABEL, this.filters.subCategoriesActions)
+                .then(result => {
+                    if (result !== CLOSE_LABEL)
+                        this.article.subCategory = result;
+                });
+            },
+            openCountriesSelect: function () {
+                let actions = [];
+                this.filters.countries.map(c => {
+                    actions.push(c.name);
+                });
+                action("Sélectionnez votre pays", CLOSE_LABEL, actions)
+                    .then(result => {
+                        if (result !== CLOSE_LABEL)
+                            this.selectedCountry = result;
+                    });
+            },
+
+            openRegionsSelect: function () {
+                if (!this.filters.countries.length || this.selectedCountry === CHOOSE_LABEL) {
+                    return;
+                }
+                action("Sélectionnez une région", CLOSE_LABEL, this.filters.townsActions)
+                    .then(result => {
+                        if (result !== CLOSE_LABEL)
+                            this.article.region = result;
+                    });
             },
             selectPictures: function () {
                 const context = imagepicker.create({ mode: "multiple", mediaType: 1 }); // use "multiple" for multiple selection, or single for single selection
@@ -122,6 +230,20 @@
                 setTimeout(() => {
                     this.busy = false;
                 }, 5000)
+            },
+            onNavigatedTo: function () {
+                this.loading = true;
+                API.fetchConfigFilters().then(res => {
+                   this.loading = false;
+                   const data = res.data;
+                   this.filters.countries = data.countries || [];
+                   this.filters.towns = data.towns || [];
+                   this.filters.categories = data.categories || [];
+                   this.filters.subCategories = data.subCategories || [];
+                }).catch(err => {
+                    this.loading = false;
+                    alert('Une erreur est survenue.')
+                });
             }
         }
     }

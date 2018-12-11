@@ -14,7 +14,8 @@
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ data.length }} résultats</Label>
-                <Image src="res://ic_filter" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
+                <Image src="res://ic_marker" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showLocationFilterModal"/>
+                <Image src="res://ic_filter" class="filter" col="2" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
                 <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
@@ -53,6 +54,7 @@
     import ArticleListView from '../partials/ArticlesListView';
     import * as platform from 'tns-core-modules/platform'
     import AddArticleModal from '../modals/AddArticleModal'
+    import LocationFilterModal from '../modals/LocationFilterModal'
     import Details from './ArticleDetailPage';
 
     export default {
@@ -99,6 +101,14 @@
                     animated: true
                 })
             },
+            showLocationFilterModal: function () {
+                this.$showModal(LocationFilterModal, {
+                    fullscreen: true,
+                    animated: true
+                }).then(res => {
+                    alert(res)
+                })
+            },
             showDetails: function (row) {
                 this.$navigateTo(Details, {
                     animated: true,
@@ -131,7 +141,8 @@
             ArticleGridView,
             ArticleListView,
             AddArticleModal,
-            Details
+            Details,
+            LocationFilterModal
         }
     }
 </script>

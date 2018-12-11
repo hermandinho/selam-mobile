@@ -10,7 +10,12 @@ let register = (params) => {
     return axios.post(API_BASE_URL + '/user/signup', params)
 };
 
+let fetchConfigFilters = () => {
+    return axios.get(API_BASE_URL + '/config/filters')
+};
+
 export default{
     login,
-    register
+    register,
+    fetchConfigFilters
 };

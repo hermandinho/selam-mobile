@@ -102,7 +102,7 @@
                     this.processing = false;
                     this.loginComplete(res.data.user);
                 }).catch(err => {
-                    alert(err.response.data.error);
+                    alert(err.response.data.error || "Le serveur est indisponible pour le moment. Essayez plus tard.");
                     this.processing = false;
                 });
             },
