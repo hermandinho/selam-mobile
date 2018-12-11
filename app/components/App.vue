@@ -11,25 +11,20 @@
                 selectedTabTextColor="#ffffff"
                 @loaded="onTabViewLoaded"
                 @unloaded="onTabViewUnloaded">
-            <TabViewItem bageValue="50" title="" :iconSource="selectedIndex == 0 ? 'res://chat_white' : 'res://chat_black'">
-                <!--<chat-view style=""/>-->
+            <TabViewItem bageValue="50" title="" :iconSource="selectedIndex === 0 ? 'res://ic_tab_chat_white' : 'res://ic_tab_chat_black'">
                 <Frame>
                     <chat-list-page></chat-list-page>
                 </Frame>
             </TabViewItem>
-            <TabViewItem bageValue="1" title="" :iconSource="selectedIndex == 1 ? 'res://basket_white' : 'res://basket_black'">
+            <TabViewItem bageValue="1" title="" :iconSource="selectedIndex === 1 ? 'res://ic_tab_shopping_bag_white' : 'res://ic_tab_shopping_bag_black'">
                 <Frame>
                     <articles-list-page></articles-list-page>
                 </Frame>
             </TabViewItem>
-            <TabViewItem :bageValue="x" title="" :iconSource="selectedIndex == 2 ? 'res://settings_white' : 'res://settings_black'">
+            <TabViewItem :bageValue="x" title="" :iconSource="selectedIndex === 2 ? 'res://ic_tab_settings_white' : 'res://ic_tab_settings_black'">
                 <Frame>
                     <settings-page></settings-page>
                 </Frame>
-                <!--<DockLayout width="210" height="210" backgroundColor="lightgray" stretchLastChild="false">
-                    <Label :text="getToken" textWrap="true" dock="top" height="200" backgroundColor="green"/>
-                    <Label text="Logout" dock="bottom" height="60" backgroundColor="yellow" @tap="logout" />
-                </DockLayout>-->
             </TabViewItem>
         </TabView>
     </Page>
@@ -38,15 +33,14 @@
 <script>
     import * as app from 'tns-core-modules/application'
     import * as platform from 'tns-core-modules/platform'
-    import { Pusher } from 'nativescript-pusher';
+    import {Pusher} from 'nativescript-pusher';
     import Vuex from 'vuex';
     import ChatListPage from './page/ChatList';
     import ArticlesListPage from './page/ArticlesListPage';
     import SettingsPage from './page/SettingsPage';
-    import LoginPage from './page/LoginPage'
-    import { isIOS, isAndroid } from 'platform';
-    import { ContentView } from 'ui/content-view';
-    import { Label } from 'ui/label';
+    import {isAndroid, isIOS} from 'platform';
+    import {ContentView} from 'ui/content-view';
+    import {Label} from 'ui/label';
 
     export default {
         name: 'app',
@@ -105,20 +99,6 @@
                     console.log('ERROR ----> ', e);
                 }
             },
-            logout: function () {
-                localStorage.clear();
-                this.$navigateTo(LoginPage, {
-                    animated: true,
-                    clearHistory: true,
-                    transition: {
-                        name: "slide",
-                        duration: 150,
-                        curve: "easeOut"
-                    },
-                    props: {
-                    }
-                });
-            },
             onTabViewLoaded: function ({object}) {
                 if (isAndroid) {
                     object._badges = {};
@@ -169,7 +149,6 @@
         components: {
             ChatListPage,
             ArticlesListPage,
-            LoginPage,
             SettingsPage
         },
         mounted: function () {

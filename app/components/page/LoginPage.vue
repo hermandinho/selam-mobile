@@ -7,7 +7,7 @@
         <Gradient direction="to right" colors="#ec4980, #Ac4980">
             <FlexboxLayout flexDirection="column" justifyContent="center" class="full-height">
 
-                <Image src="res://shopping_bag_logo" class="logo"/>
+                <Image src="res://basket_white" class="logo"/>
 
                 <StackLayout class="container">
                     <FlexboxLayout alignItems="center" class="border-bottom" v-if="!isLogin">
@@ -16,12 +16,12 @@
                     </FlexboxLayout>
 
                     <FlexboxLayout alignItems="center" class="border-bottom">
-                        <Image src="res://chat_white" width="20" height="20" class="icon-margin"/>
+                        <Image src="res://ic_user" width="30" height="30" class="icon-margin"/>
                         <TextField keyboardType="email" hint="Email" v-model="user.email" class="form-input" autocorrect="false"/>
                     </FlexboxLayout>
 
                     <FlexboxLayout alignItems="center" class="border-bottom">
-                        <Image src="res://chat_white" width="20" height="20" class="icon-margin"/>
+                        <Image src="res://ic_padlock" width="30" height="30" class="icon-margin"/>
                         <TextField hint="Mot de passe" secure="true" v-model="user.password" class="form-input" autocorrect="false"/>
                     </FlexboxLayout>
 

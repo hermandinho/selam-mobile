@@ -14,7 +14,7 @@
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ data.length }} résultats</Label>
-                <Image src="res://filter_primary" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
+                <Image src="res://ic_filter" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
                 <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
@@ -39,7 +39,7 @@
             <fab
                 row="2"
                 @tap="showCreateModal"
-                icon="res://icon_add_white"
+                icon="res://ic_add_white"
                 rippleColor="#f1f1f1"
                 class="fab-button"
             ></fab>
