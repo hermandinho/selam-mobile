@@ -206,10 +206,10 @@
                         return context.present();
                     })
                     .then((selection) => {
-                        this.article.images = [];
+                        this.article.pictures = [];
                         selection.forEach((selected) => {
                             fromAsset(selected).then(src => {
-                                this.article.images.push(src.toBase64String("png").toString());
+                                this.article.pictures.push(src.toBase64String("png").toString());
                             });
                         });
                         // list.items = selection;
@@ -221,7 +221,7 @@
             selectedImage: function (img) {
                 confirm('Voullez vous suprimmer cette image?').then(res => {
                     if (res) {
-                        this.article.images.splice(this.article.images.indexOf(img), 1);
+                        this.article.pictures.splice(this.article.pictures.indexOf(img), 1);
                     }
                 });
             },

@@ -2,23 +2,26 @@
     <Frame>
         <Page  verticalAlignment="top"  @navigatedTo="onNavigatedTo">
             <ActionBar class="action-bar" title="Région">
-                <ActionItem @tap="$modal.close('HELLO MAN')"
+                <ActionItem @tap="$modal.close({selectedTowns})"
                             ios.systemIcon="9" ios.position="left"
                             android.systemIcon="ic_menu_close_clear_cancel" android.position="actionBar"/>
             </ActionBar>
 
-            <ScrollView orientation="horizontal" height="100%">
-                <GridLayout class="m-4" colomns="*" rows="auto,auto,*" width="100%" orientation="horizontal">
-                    <ActivityIndicator row="4" :busy="loading" rowSpan="2" color="#ec4980" />
+            <ScrollView orientation="horizontal">
+                <GridLayout class="m-4 p-10" colomns="*" rows="auto,auto,*" width="100%" orientation="horizontal">
+                    <ActivityIndicator row="4" :busy="loading" rowSpan="1" color="#ec4980" />
 
-                    <ListPicker v-if="countries.length" :items="countries" selectedIndex="0" col="0" row="0" width="100%"
+                    <ListPicker v-if="countries.length" :items="countries" selectedIndex="0" col="0" row="0" width="90%"
                                 @selectedIndexChange="selectedIndexChanged" @loaded="onListViewLoaded"/>
 
-                    <!--<Label class="line" row="1" col="0" />-->
+                    <!--<Label class="line" row="1" col="0" >{{ selectedTowns.length }}</Label>-->
                     <ListView for="item in filteredTowns" @itemTap="townSelected" row="2" height="*">
                         <v-template>
-                            <!-- Shows the list item label in the default color and style. -->
-                            <Label :text="item.name" height="150"/>
+                            <FlexboxLayout flexDirection="columns">
+                                <Label :text="item.name" class="p-10" flexGrow="5"/>
+
+                                <Switch checked="false" flexGrow="1" @checkedChange="handleSelectChange($event, item)"/>
+                            </FlexboxLayout>
                         </v-template>
                     </ListView>
                 </GridLayout>
@@ -31,6 +34,10 @@
     import API from '../../api'
     export default {
         name: "location-filter-modal",
+        props: {
+            towns: { type: Array, default: [] },
+            country: { type: String, default: "" },
+        },
         data: function () {
             return {
                 location: {
@@ -42,6 +49,13 @@
                 filteredTowns: [],
                 listView: null,
                 loading: false,
+                selectedTowns: []
+            }
+        },
+        watch: {
+            countries: function (n) {
+                this.selectedTowns = [];
+                this.filteredTowns = this.towns.filter(t => t.country.name === n[0]);
             }
         },
         methods: {
@@ -62,12 +76,20 @@
                 })
             },
             selectedIndexChanged: function ({value}) {
+                this.selectedTowns = [];
                 const ctry = this.countries[value];
                 this.filteredTowns = this.towns.filter(t => t.country.name === ctry);
             },
             onListViewLoaded: function ({object}) {
             },
             townSelected: function (item) {
+            },
+            handleSelectChange: function ({value}, item) {
+                if (value) {
+                    this.selectedTowns.push(item);
+                } else {
+                    this.selectedTowns = this.selectedTowns.filter(t => t._id !== item._id)
+                }
             }
         }
     }
