@@ -1,19 +1,26 @@
 <template>
     <Frame>
-        <Page @navigatedTo="onNavigatedTo">
+        <Page  verticalAlignment="top"  @navigatedTo="onNavigatedTo">
             <ActionBar class="action-bar" title="Région">
                 <ActionItem @tap="$modal.close('HELLO MAN')"
                             ios.systemIcon="9" ios.position="left"
                             android.systemIcon="ic_menu_close_clear_cancel" android.position="actionBar"/>
             </ActionBar>
 
-            <ScrollView orientation="horizontal">
-                <GridLayout class="m-8" colomns="*" rows="auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto" width="100%">
-                    <ListPicker :items="countries" selectedIndex="0" col="0" row="0" width="100%"
-                                @selectedIndexChange="selectedIndexChanged" @loaded="onListViewLoaded($event)"/>
+            <ScrollView orientation="horizontal" height="100%">
+                <GridLayout class="m-4" colomns="*" rows="auto,auto,*" width="100%" orientation="horizontal">
+                    <ActivityIndicator row="4" :busy="loading" rowSpan="2" color="#ec4980" />
 
-                    <Label class="line" row="1" col="0">{{ countries }}</Label>
-                    <Label class="" row="2" col="0" text="HELLO"/>
+                    <ListPicker v-if="countries.length" :items="countries" selectedIndex="0" col="0" row="0" width="100%"
+                                @selectedIndexChange="selectedIndexChanged" @loaded="onListViewLoaded"/>
+
+                    <!--<Label class="line" row="1" col="0" />-->
+                    <ListView for="item in filteredTowns" @itemTap="townSelected" row="2" height="*">
+                        <v-template>
+                            <!-- Shows the list item label in the default color and style. -->
+                            <Label :text="item.name" height="150"/>
+                        </v-template>
+                    </ListView>
                 </GridLayout>
             </ScrollView>
         </Page>
@@ -33,31 +40,34 @@
                 countries: [],
                 towns: [],
                 filteredTowns: [],
-                listView: null
+                listView: null,
+                loading: false,
             }
         },
         methods: {
             onNavigatedTo: function () {
+                this.loading = true;
                 API.fetchConfigFilters().then(res => {
                     const data = res.data;
                     data.countries.map(c => {
                         this.countries.push(c.name);
                     })
-                    data.towns.map(c => {
+                    this.towns = data.towns;
+                    /*data.towns.map(c => {
                         this.towns.push(c.name);
-                    })
-                    if (this.listView) {
-                        this.listView.refresh();
-                        alert(0)
-                    }
+                    })*/
+                    this.loading = false;
+                }).catch(err => {
+                    this.loading = false;
                 })
             },
-            selectedIndexChanged: function (index) {
-                alert(index)
+            selectedIndexChanged: function ({value}) {
+                const ctry = this.countries[value];
+                this.filteredTowns = this.towns.filter(t => t.country.name === ctry);
             },
             onListViewLoaded: function ({object}) {
-                this.listView = object;
-                alert('Loaded', Object.keys(object));
+            },
+            townSelected: function (item) {
             }
         }
     }
