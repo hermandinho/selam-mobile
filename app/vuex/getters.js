@@ -10,6 +10,9 @@ let getters = {
     getPusherChannel: (state) => {
         return state.pusherChannel;
     },
+    getNetWorkStatus: (state) => {
+        return state.hasNetwork;
+    },
 };
 
 export default getters;

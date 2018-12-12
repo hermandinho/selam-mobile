@@ -10,6 +10,9 @@ let mutations = {
     [TYPES.PUSHER_CHANNEL]: (state, channel) => {
         state.pusherChannel = channel;
     },
+    [TYPES.SET_NETWORK_STATE]: (state, status) => {
+        state.hasNetwork = status;
+    },
 };
 
 export default mutations;

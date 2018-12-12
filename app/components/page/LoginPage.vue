@@ -98,7 +98,7 @@
                 API.login({ email: this.user.email, password: this.user.password, uuid: this.user.uuid, pusherChannel: this.user.pusherChannel })
                 .then(res => {
                     localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('user', res.data.user);
+                    localStorage.setItem('user', JSON.stringify(res.data.user));
                     this.processing = false;
                     this.loginComplete(res.data.user);
                 }).catch(err => {
@@ -117,7 +117,7 @@
                 }).then(res => {
                     this.processing = false;
                     localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('user', res.data.user);
+                    localStorage.setItem('user', JSON.stringify(res.data.user));
                     this.loginComplete(res.data.user);
                 }).catch(err => {
                     this.processing = false;

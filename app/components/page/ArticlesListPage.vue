@@ -4,7 +4,7 @@
             <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
             <Label class="action-bar-title" text="Title"></Label>
         </ActionBar>
-        <GridLayout class="m-5 p-0" rows="auto,auto,*" columns="*">
+        <GridLayout class="m-5 p-0" rows="auto,auto,*" columns="*" v-if="getNetWorkStatus">
             <SearchBar @loaded="onSearchBoxLoaded" row="0"
                        id="articleSearchBar"
                        hint="Rechercher ..."
@@ -22,7 +22,6 @@
 
             <ScrollView orientation="vertical" height="100%" row="2">
                 <RadListView ref="gridView"
-                    itemHeight="150"
                     layout="grid"
                     itemWidth="40%"
                     for="(item, index) in data"
@@ -31,10 +30,16 @@
                     pullToRefresh="true"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
                     @itemTap="showDetails"
+                    :loadOnDemandMode="page >= 3 ? 'None' : 'Auto'"
+                    @loadMoreDataRequested="loadMore"
+                    loadOnDemandBufferSize="3"
                 >
                     <v-template>
                         <article-grid-view :data="data" :index="index" width="99%"></article-grid-view>
                     </v-template>
+                    <!--<v-template name="footer">
+                        <Label text="Load more"></Label>
+                    </v-template>-->
                 </RadListView>
             </ScrollView>
             <fab
@@ -45,11 +50,12 @@
                 class="fab-button"
             ></fab>
         </GridLayout>
-        &uparrow;
+        <Image stretch="aspectFit" src="res://ic_no_network" v-else class="m-t-15"/>
     </Page>
 </template>
 
 <script>
+    import Vuex from 'vuex';
     import ArticleGridView from '../partials/ArticlesGridView';
     import ArticleListView from '../partials/ArticlesListView';
     import * as platform from 'tns-core-modules/platform'
@@ -63,7 +69,12 @@
             return {
                 searchPhrase: '',
                 viewMode: 'grid',
-                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+                filters: {
+                    towns: [],
+                    country: ''
+                },
+                page: 1,
             }
         },
         watch: {
@@ -72,6 +83,7 @@
             }
         },
         computed: {
+            ...Vuex.mapGetters(['getNetWorkStatus']),
             isTablet: function () {
                 return platform.device.deviceType.toLowerCase() === 'tablet';
             }
@@ -104,9 +116,18 @@
             showLocationFilterModal: function () {
                 this.$showModal(LocationFilterModal, {
                     fullscreen: true,
-                    animated: true
+                    animated: true,
+                    props: {
+                        oldTowns:  this.filters.towns,
+                        country:  this.filters.country
+                    }
                 }).then(res => {
-                    alert(res)
+                    this.filters.towns = [];
+                    this.filters.country = '';
+                    res.selectedTowns && res.selectedTowns.map(t => {
+                        this.filters.towns.push(t._id);
+                    });
+                    this.filters.country = res.selectedCountry || '';
                 })
             },
             showDetails: function (row) {
@@ -135,6 +156,14 @@
                             alert('Prix Décroissant');break;
                     }
                 } )
+            },
+            loadMore: function ({ object }) {
+                console.log('Loading More ....')
+                setTimeout(() => {
+                    this.data = this.data.concat([(new Date).getTime(), (new Date).getTime(), (new Date).getTime()]);
+                    this.page ++;
+                    object.notifyLoadOnDemandFinished();
+                }, 3000);
             }
         },
         components: {

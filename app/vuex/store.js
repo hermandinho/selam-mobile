@@ -6,6 +6,7 @@ const state = {
     test: 1,
     pusherInstance: null,
     pusherChannel: null,
+    hasNetwork: false
 };
 
 const actions = require('./actions');

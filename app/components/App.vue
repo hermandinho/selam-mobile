@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onLoaded">
+    <Page class="page" actionBarHidden="true" @loaded="onLoaded" @navigatedTo="OnNavigatedTo" @unLoaded="OnUnloaded">
         <TabView
                 id="main-tab"
                 :selectedIndex="1"
@@ -32,6 +32,7 @@
 
 <script>
     import * as app from 'tns-core-modules/application'
+    const connectivityModule = require("tns-core-modules/connectivity");
     import * as platform from 'tns-core-modules/platform'
     import {Pusher} from 'nativescript-pusher';
     import Vuex from 'vuex';
@@ -48,17 +49,17 @@
             return {
                 selectedIndex: 0,
                 uuid: null,
-                pusherConnected: false,
+                pusherConnected: false
             }
         },
         computed: {
-            ...Vuex.mapGetters(['getTest', 'getPusherInstance', 'getPusherChannel']),
+            ...Vuex.mapGetters(['getTest', 'getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
             getToken: function () {
                 return localStorage.getItem('token');
             }
         },
         methods: {
-            ...Vuex.mapActions(['test', 'setPusherInstance', 'setPusherChannel']),
+            ...Vuex.mapActions(['test', 'setPusherInstance', 'setPusherChannel', 'setNetWorkStatus']),
             tabChanged: function (index) {
                 this.selectedIndex = index.value;
             },
@@ -144,6 +145,54 @@
                     view.removeView(contentView.nativeView);
                     contentView.onUnloaded();
                 }
+            },
+            OnNavigatedTo: function ({object}) {
+                let connectionTypeString;
+                const myConnectionType = connectivityModule.getConnectionType();
+                /*switch (myConnectionType) {
+                    case connectivityModule.connectionType.none:
+                        connectionTypeString = "No Internet connectivity!";
+                        break;
+                    case connectivityModule.connectionType.wifi:
+                        console.log("WiFi connection");
+                        connectionTypeString = "WiFI connectivity!";
+                        break;
+                    case connectivityModule.connectionType.mobile:
+                        connectionTypeString = "Mobile connectivity!";
+                        break;
+                    case connectivityModule.connectionType.ethernet:
+                        connectionTypeString = "Ethernet connectivity!";
+                        break;
+                    case connectionType.bluetooth:
+                        connectionTypeString = "Bluetooth connectivity!";
+                        break;
+                    default:
+                        break;
+                }*/
+                connectivityModule.startMonitoring((newConnectionType) => {
+                    switch (newConnectionType) {
+                        case connectivityModule.connectionType.none:
+                            console.log("Connection type changed to none.");
+                            this.setNetWorkStatus(false);
+                            break;
+                        case connectivityModule.connectionType.wifi:
+                            console.log("Connection type changed to WiFi.");
+                            this.setNetWorkStatus(true);
+                            break;
+                        case connectivityModule.connectionType.mobile:
+                            console.log("Connection type changed to mobile.");
+                            this.setNetWorkStatus(true);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                // Explicitly stopping the monitoring
+                // connectivityModule.stopMonitoring();
+            },
+            OnUnloaded: function ({object}) {
+                console.log('STOP CONNECTIVITY MONITORING.');
+                connectivityModule.stopMonitoring();
             }
         },
         components: {

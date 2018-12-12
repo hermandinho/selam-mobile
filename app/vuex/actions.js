@@ -10,6 +10,9 @@ let actions = {
     setPusherChannel: (store, channel) => {
         store.commit(TYPES.PUSHER_CHANNEL, channel)
     },
+    setNetWorkStatus: (store, status) => {
+        store.commit(TYPES.SET_NETWORK_STATE, status)
+    },
 };
 
 export default actions;

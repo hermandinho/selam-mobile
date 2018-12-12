@@ -40,7 +40,7 @@
 
                     <WrapLayout v-if="article.pictures.length" orientation="horizontal" row="8" col="0" colSpan="2" class="margin-bottom preview-images p-r-10" width="auto" height="auto">
                         <Image
-                            :src="'data:Image/png;base64,' + img"
+                            :src="img"
                             stretch="aspectFill"
                             width="75"
                             height="75"
@@ -65,9 +65,12 @@
 </template>
 
 <script>
+    /*'data:Image/png;base64,' + */
     const imagepicker = require("nativescript-imagepicker");
+    var bghttp = require("nativescript-background-http");
     import { fromAsset, fromBase64 } from "tns-core-modules/image-source";
     import API from '../../api'
+    const Toast = require('nativescript-toast');
 
     const CHOOSE_LABEL = 'Choisir';
     const CLOSE_LABEL = 'Fermer';
@@ -84,13 +87,13 @@
                         fixed: true
                     },
                     currency: 'CFA',
-                    pictures: [],
                     exchange: true,
-                    user: '',
+                    user: null,
                     region: 'Choisir',
                     subCategory: 'Choisir',
                     published: true,
                     available: true,
+                    pictures: [],
                 },
                 busy: false,
                 loading: false,
@@ -187,7 +190,6 @@
                             this.selectedCountry = result;
                     });
             },
-
             openRegionsSelect: function () {
                 if (!this.filters.countries.length || this.selectedCountry === CHOOSE_LABEL) {
                     return;
@@ -208,9 +210,10 @@
                     .then((selection) => {
                         this.article.pictures = [];
                         selection.forEach((selected) => {
-                            fromAsset(selected).then(src => {
-                                this.article.pictures.push(src.toBase64String("png").toString());
-                            });
+                            this.article.pictures.push(selected.android);
+                            // this.article.pictures.push(src.toBase64String("png").toString());
+                            /*fromAsset(selected).then(src => {
+                            });*/
                         });
                         // list.items = selection;
                     }).catch(function (e) {
@@ -225,11 +228,87 @@
                     }
                 });
             },
+            validate: function (params) {
+                params.title = params.title.trim();
+                params.description = params.description.trim();
+
+                if (!params.title || !params.title.length) {
+                    alert('Veillez saisir un titre pour votre publication.');
+                    return false;
+                }
+                if (!params.subCategory || params.subCategory === CHOOSE_LABEL) {
+                    alert('Veillez selectionner une sous catégorie.');
+                    return false;
+                }
+                if (!params.region || params.region === CHOOSE_LABEL) {
+                    alert('Veillez selectionner une ville.');
+                    return false;
+                }
+                if (!params.user) {
+                    alert('Impossible de publier votre article. Vous devez être connecté.');
+                    return false;
+                }
+                return true;
+            },
             submit: function () {
                 this.busy = true;
-                setTimeout(() => {
+                let params = JSON.parse(JSON.stringify(this.article));
+                let user = JSON.parse(localStorage.getItem('user'));
+                params.subCategory = this.filters.subCategories.filter(s => s.name.trim().toLowerCase() === params.subCategory.trim().toLowerCase())[0];
+                params.subCategory = params.subCategory && params.subCategory._id || null;
+                params.region = this.filters.towns.filter(t => t.name.trim().toLowerCase() === params.region.trim().toLowerCase())[0];
+                params.region = params.region && params.region._id || null;
+                params.user = user && user._id || null;
+                const images = params.pictures || [];
+                params.pictures = ['*'];
+
+                if (this.validate(params)) {
+                    API.createArticle(params).then(res => {
+                        Toast.makeText("Votre annonce est en cours de publication...", 'long').show();
+                        this.busy = false;
+                        if (images.length > 0) {
+                            this.uploadImages(res._id, images);
+                        } else {
+                            this.$modal.close();
+                        }
+                    }).catch(err => {
+                        alert(err.response.data.error || "Le serveur est indisponible pour le moment. Essayez plus tard.");
+                    });
+                } else {
                     this.busy = false;
-                }, 5000)
+                }
+            },
+            uploadImages: function (id, images) {
+                let session = bghttp.session("image-upload");
+                let request = {
+                    url: API.getAPIBaseURL() + '/article/' + id + '/upload',
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/octet-stream",
+                    },
+                    description: "Uploading article images",
+                    androidDisplayNotificationProgress: true,
+                    androidNotificationTitle: 'File upload'
+                };
+                const params = [
+                    /*{ name: "test", value: "value" },
+                    { name: "fileToUpload", filename: file, mimeType: "image/jpeg" }*/
+                ];
+                let count = 0;
+                images.map((img)=> {
+                    params.push({
+                        filename: 'Article_' + (count ++) + '_Image',
+                        name: img
+                    });
+                })
+                const task = session.multipartUpload(params, request);
+                task.on("complete", (res) => {
+                    console.log('COMPLETED !!!', res);
+                    this.$modal.close();
+                });
+                task.on("error", (err) => {
+                    console.log('UPLOAD ERROR ', err);
+                });
             },
             onNavigatedTo: function () {
                 this.loading = true;
