@@ -12,7 +12,7 @@ axios.interceptors.request.use((config) => {
 });
 
 axios.interceptors.response.use((response) => {
-    return response
+    return response;
 }, (error) => {
     if (401 === error.response.status) {
         alert("Votre session a expirée. Véillez vous re-connecter");

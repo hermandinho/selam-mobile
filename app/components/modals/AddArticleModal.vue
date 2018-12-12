@@ -80,7 +80,7 @@
         data: function () {
             return {
                 article: {
-                    title: '',
+                    title: 'Test',
                     description: 'La description de mon article.',
                     price: {
                         amount: '0.0',
@@ -267,7 +267,7 @@
                         Toast.makeText("Votre annonce est en cours de publication...", 'long').show();
                         this.busy = false;
                         if (images.length > 0) {
-                            this.uploadImages(res._id, images);
+                            this.uploadImages(res.data._id, images);
                         } else {
                             this.$modal.close();
                         }
@@ -284,31 +284,68 @@
                     url: API.getAPIBaseURL() + '/article/' + id + '/upload',
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/octet-stream",
+                        //"Content-Type": "application/octet-stream",
+                        "Authorization": "Bearer " + localStorage.getItem('token'),
+                        'File-Name': 'name',
                     },
+                    ttf8: true,
                     description: "Uploading article images",
                     androidDisplayNotificationProgress: true,
                     androidNotificationTitle: 'File upload'
                 };
-                const params = [
-                    /*{ name: "test", value: "value" },
-                    { name: "fileToUpload", filename: file, mimeType: "image/jpeg" }*/
-                ];
+                let params;
                 let count = 0;
                 images.map((img)=> {
-                    params.push({
-                        filename: 'Article_' + (count ++) + '_Image',
-                        name: img
+                    params = [
+                        { name: "name", value: 'Article_' + (count ++) + id },
+                        { name: "fileToUpload", filename: img, mimeType: "image/jpeg" }
+                    ];
+                    const task = session.multipartUpload(params, request);
+                    task.on("complete", (res) => {
+                        //this.$modal.close();
                     });
+                    task.on("error", (err) => {
+                    });
+                    task.on("progress", (res) => {
+                        //this.$modal.close();
+                    });
+                    task.on("responded", (res) => {
+                        //this.$modal.close();
+                    });
+                    task.on("cancelled", (res) => {
+                        //this.$modal.close();
+                    }); // Android only
+
                 })
-                const task = session.multipartUpload(params, request);
+                /*params = [
+                    { name: "test", value: "value" },
+                    { name: "fileToUpload", filename: file, mimeType: "image/jpeg" }
+                ];*/
+
+                /*const task = session.multipartUpload(params, request);
+
                 task.on("complete", (res) => {
                     console.log('COMPLETED !!!', res);
+                    Toast.makeText("1", 'long').show();
                     this.$modal.close();
                 });
                 task.on("error", (err) => {
-                    console.log('UPLOAD ERROR ', err);
+                    console.log('UPLOAD ERROR ', err.response);
+                    Toast.makeText("2", 'long').show();
                 });
+                task.on("progress", (res) => {
+                    Toast.makeText("3", 'long').show();
+                    this.$modal.close();
+                });
+                task.on("responded", (res) => {
+                    Toast.makeText("4", 'long').show();
+                    console.log('RESPONDED !!!', res);
+                    this.$modal.close();
+                });
+                task.on("cancelled", (res) => {
+                    Toast.makeText("5", 'long').show();
+                    this.$modal.close();
+                }); // Android only*/
             },
             onNavigatedTo: function () {
                 this.loading = true;
