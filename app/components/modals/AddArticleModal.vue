@@ -260,7 +260,7 @@
                 params.region = params.region && params.region._id || null;
                 params.user = user && user._id || null;
                 const images = params.pictures || [];
-                params.pictures = ['*'];
+                // params.pictures = images.length > 0 ? ['*'] : [];
 
                 if (this.validate(params)) {
                     API.createArticle(params).then(res => {
@@ -279,8 +279,8 @@
                 }
             },
             uploadImages: function (id, images) {
-                let session = bghttp.session("image-upload");
-                let request = {
+                const session = bghttp.session("image-upload");
+                const request = {
                     url: API.getAPIBaseURL() + '/article/' + id + '/upload',
                     method: "POST",
                     headers: {
@@ -288,64 +288,45 @@
                         "Authorization": "Bearer " + localStorage.getItem('token'),
                         'File-Name': 'name',
                     },
-                    ttf8: true,
+                    // utf8: true,
                     description: "Uploading article images",
                     androidDisplayNotificationProgress: true,
-                    androidNotificationTitle: 'File upload'
+                    androidNotificationTitle: 'Publication de l\'annonce en cours .....',
+                    androidMaxRetries: 5
                 };
                 let params;
                 let count = 0;
                 images.map((img)=> {
                     params = [
-                        { name: "name", value: 'Article_' + (count ++) + id },
+                        { name: "name", value: 'article-' + id + '-' + (count ++) },
                         { name: "fileToUpload", filename: img, mimeType: "image/jpeg" }
                     ];
                     const task = session.multipartUpload(params, request);
                     task.on("complete", (res) => {
+                        //console.log('UPLOAD COMPLETE: ', res);
                         //this.$modal.close();
+                        //Toast.makeText(count + ' uploaded', 'medium').show();
+                        if (count >= images.length) {
+                            Toast.makeText('Votre annonce a été publié avec succès !!', 'long').show();
+                        }
                     });
                     task.on("error", (err) => {
+                        //console.log("UPLOAD ERROR: ", err);
+                        // Toast.makeText('ERROR', 'long').show();
+                        if (count >= images.length) {
+                            Toast.makeText('Certains images de votre annonce n\'ont pas pu être envoyé sur nos serveurs.', 'long').show();
+                        }
                     });
                     task.on("progress", (res) => {
-                        //this.$modal.close();
                     });
                     task.on("responded", (res) => {
-                        //this.$modal.close();
                     });
                     task.on("cancelled", (res) => {
-                        //this.$modal.close();
                     }); // Android only
 
+                    this.$modal.close();
+
                 })
-                /*params = [
-                    { name: "test", value: "value" },
-                    { name: "fileToUpload", filename: file, mimeType: "image/jpeg" }
-                ];*/
-
-                /*const task = session.multipartUpload(params, request);
-
-                task.on("complete", (res) => {
-                    console.log('COMPLETED !!!', res);
-                    Toast.makeText("1", 'long').show();
-                    this.$modal.close();
-                });
-                task.on("error", (err) => {
-                    console.log('UPLOAD ERROR ', err.response);
-                    Toast.makeText("2", 'long').show();
-                });
-                task.on("progress", (res) => {
-                    Toast.makeText("3", 'long').show();
-                    this.$modal.close();
-                });
-                task.on("responded", (res) => {
-                    Toast.makeText("4", 'long').show();
-                    console.log('RESPONDED !!!', res);
-                    this.$modal.close();
-                });
-                task.on("cancelled", (res) => {
-                    Toast.makeText("5", 'long').show();
-                    this.$modal.close();
-                }); // Android only*/
             },
             onNavigatedTo: function () {
                 this.loading = true;
@@ -358,7 +339,9 @@
                    this.filters.subCategories = data.subCategories || [];
                 }).catch(err => {
                     this.loading = false;
-                    alert('Une erreur est survenue.')
+                    alert('Une erreur est survenue.').then(res => {
+                        this.$modal.close();
+                    });
                 });
             }
         }

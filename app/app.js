@@ -20,6 +20,13 @@ import Login from './components/page/LoginPage'
 
 Vue.config.silent = true;
 
+Vue.filter('currency', (value, symbol) => {
+    if (typeof value === undefined || typeof symbol === undefined) return value;
+    // console.log(value, symbol, typeof value, typeof symbol);
+    //return (value).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    return (value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' ' + symbol;
+});
+
 new Vue({
     store,
     template: `

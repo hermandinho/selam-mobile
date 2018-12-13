@@ -12,7 +12,7 @@
             <Label height="100">LABEL {{item}}</Label>
         </v-template>
     </RadListView>-->
-    <Label height="100">LIST LABEL {{item}}</Label>
+    <Label>LIST LABEL {{item}}</Label>
 </template>
 
 <script>

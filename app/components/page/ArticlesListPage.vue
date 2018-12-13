@@ -1,5 +1,5 @@
 <template>
-    <Page verticalAlignment="top">
+    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
             <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
             <Label class="action-bar-title" text="Title"></Label>
@@ -20,6 +20,8 @@
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
 
+            <ActivityIndicator row="2" :busy="loading" rowSpan="3" colSpan="1" color="#ec4980" />
+
             <ScrollView orientation="vertical" height="100%" row="2">
                 <RadListView ref="gridView"
                     layout="grid"
@@ -30,15 +32,15 @@
                     pullToRefresh="true"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
                     @itemTap="showDetails"
-                    :loadOnDemandMode="page >= 3 ? 'None' : 'Auto'"
+                    :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
                     @loadMoreDataRequested="loadMore"
                     loadOnDemandBufferSize="3"
                 >
                     <v-template>
-                        <article-grid-view :data="data" :index="index" width="99%"></article-grid-view>
+                        <article-grid-view :data="item" :index="index" width="99%"></article-grid-view>
                     </v-template>
-                    <!--<v-template name="footer">
-                        <Label text="Load more"></Label>
+                    <!--<v-template name="footer" v-if="page >= maxPages">
+                        <Label text="Fin de la liste"></Label>
                     </v-template>-->
                 </RadListView>
             </ScrollView>
@@ -50,10 +52,13 @@
                 class="fab-button"
             ></fab>
         </GridLayout>
-        <Image stretch="aspectFit" src="res://ic_no_network" v-else class="m-t-15"/>
+        <FlexboxLayout v-else flexDirection="column" justifyContent="center" height="100%" width="100%">
+            <Image stretch="aspectFit" src="res://ic_no_network" class="m-t-15" width="150" height="150" opacity="0.6" horizontalAllignment="center"/>
+            <Label class="no_network" text="Vérifiez votre connection Internet." horizontalAllignment="center" alignSelf="center"/>
+        </FlexboxLayout>
     </Page>
 </template>
-
+<!--loadOnDemandBufferSize="3"-->
 <script>
     import Vuex from 'vuex';
     import ArticleGridView from '../partials/ArticlesGridView';
@@ -62,6 +67,7 @@
     import AddArticleModal from '../modals/AddArticleModal'
     import LocationFilterModal from '../modals/LocationFilterModal'
     import Details from './ArticleDetailPage';
+    import API from '../../api'
 
     export default {
         name: "articles-list-page",
@@ -69,12 +75,19 @@
             return {
                 searchPhrase: '',
                 viewMode: 'grid',
-                data: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+                data: [/*1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18*/],
                 filters: {
                     towns: [],
                     country: ''
                 },
                 page: 1,
+                maxPages: 1,
+                hasMoreItems: true,
+                loading: true,
+                sorts: {
+                    date: { asc: false, desc: true },
+                    price: { asc: false, desc: false },
+                }
             }
         },
         watch: {
@@ -98,14 +111,20 @@
                 if(this.$refs.gridView) {
                     this.$refs.gridView.refresh();
                 }
-                this.viewMode = this.viewMode === 'grid' ?  'list' : 'grid';
+                //this.viewMode = this.viewMode === 'grid' ?  'list' : 'grid';
             },
             onPullToRefreshInitiated: function ({object}) {
                 console.log('Pulling...');
-                object.notifyPullToRefreshFinished();
-            },
-            templateSelector: function (item, index, items) {
-                return this.viewMode;
+                this.page = 1;
+                this.data = [];
+                this.fetchData({refresh: true }).then(res => {
+                    console.log('PULLING OVER');
+                    object.notifyPullToRefreshFinished(true);
+                }).catch(err => {
+                    console.log('PULLING ERROR');
+                    object.notifyPullToRefreshFinished(true);
+                });
+
             },
             showCreateModal: function () {
                 this.$showModal(AddArticleModal, {
@@ -147,23 +166,69 @@
                 action('Filtrer par ?', 'Annuler',['Date ↑', 'Date ↓', 'Prix ↑', 'Prix ↓']).then( choice => {
                     switch (choice) {
                         case 'Date ↑':
-                            alert('Date Croissant');break;
+                            this.sorts.date.asc = true;
+                            this.sorts.date.desc = false;
+                            break;
                         case 'Date ↓':
-                            alert('Date Décroissant');break;
+                            this.sorts.date.asc = false;
+                            this.sorts.date.desc = true;
+                            break;
                         case 'Prix ↑':
-                            alert('Prix Croissant');break;
+                            this.sorts.price.asc = true;
+                            this.sorts.price.desc = false;
+                            break;
                         case 'Prix ↓':
-                            alert('Prix Décroissant');break;
+                            this.sorts.price.asc = false;
+                            this.sorts.price.desc = true;
+                            break;
                     }
-                } )
+                } ).then(res => {
+                    alert(res)
+                    if (res !== undefined) {
+                        this.page = 1;
+                        this.data = [];
+                        this.fetchData({})
+                    }
+                })
             },
             loadMore: function ({ object }) {
-                console.log('Loading More ....')
-                setTimeout(() => {
-                    this.data = this.data.concat([(new Date).getTime(), (new Date).getTime(), (new Date).getTime()]);
-                    this.page ++;
-                    object.notifyLoadOnDemandFinished();
-                }, 3000);
+                console.log('Loading More ....');
+                this.fetchData({loadingMore: true}).then(res => {
+                    object.notifyLoadOnDemandFinished(!this.hasMoreItems);
+                }).catch(err => {
+                    console.log('LOADED MORE ERROR');
+                    object.notifyLoadOnDemandFinished(!this.hasMoreItems);
+                });
+            },
+            onNavigatedTo: function () {
+                this.fetchData({}).then(res => {});
+            },
+            fetchData: function (params) {
+                this.loading = !params.loadingMore;
+                let page = params.page || this.page;
+                let dateSort = this.sorts.date.asc ? 1 : -1;
+                let priceSort = this.sorts.price.asc ? 1 : -1;
+
+                return API.fetchArticles({ page, limit: 5, dateSort: dateSort, priceSort: priceSort }).then(res => {
+                    const docs = res.data.docs || [];
+                    this.maxPages = res.data.pages;
+                    this.hasMoreItems = docs.length >= res.data.limit;
+                    if (params.loadingMore) {
+                        this.data = this.data.concat(docs);
+                    } else {
+                        this.data = docs;
+                    }
+
+                    if (docs.length && this.page <= this.maxPages)
+                        this.page ++;
+
+                    // this.refreshList();
+                    this.loading = false;
+                    return Promise.resolve(true);
+                }).catch(err => {
+                    this.loading = false;
+                    return Promise.reject(false)
+                });
             }
         },
         components: {
@@ -194,5 +259,13 @@
         horizontal-align: right;
         vertical-align: bottom;
         margin-top: 9%;
+    }
+    .no_network {
+        color: #000;
+        font-size: 18;
+        margin-top: 20;
+        font-weight: bold;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>

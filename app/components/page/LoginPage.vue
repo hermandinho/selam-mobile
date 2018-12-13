@@ -66,6 +66,9 @@
                     password: 'test',
                     name: 'DEMO',
                     uuid: platform.device.uuid,
+                    os: platform.device.os,
+                    version: platform.device.osVersion,
+                    type: platform.device.deviceType.toLowerCase(),
                     pusherChannel: 'selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase()
                 },
                 isLogin: true,
@@ -95,7 +98,15 @@
             },
             login: function () {
                 this.processing = true;
-                API.login({ email: this.user.email, password: this.user.password, uuid: this.user.uuid, pusherChannel: this.user.pusherChannel })
+                API.login({
+                    email: this.user.email,
+                    password: this.user.password,
+                    uuid: this.user.uuid,
+                    pusherChannel: this.user.pusherChannel,
+                    os: this.user.os,
+                    type: this.user.type,
+                    version: this.user.version
+                })
                 .then(res => {
                     localStorage.setItem('token', res.data.token);
                     localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -113,7 +124,10 @@
                     password: this.user.password,
                     uuid: this.user.uuid,
                     pusherChannel: this.user.pusherChannel,
-                    name: this.user.name
+                    name: this.user.name,
+                    os: this.user.os,
+                    type: this.user.type,
+                    version: this.user.version
                 }).then(res => {
                     this.processing = false;
                     localStorage.setItem('token', res.data.token);
