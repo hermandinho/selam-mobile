@@ -2,6 +2,7 @@ import Vue from "nativescript-vue";
 import RadListView from 'nativescript-ui-listview/vue';
 import Vuex from 'vuex';
 import store from './vuex/store';
+import moment from 'moment';
 
 require("nativescript-localstorage");
 
@@ -22,9 +23,13 @@ Vue.config.silent = true;
 
 Vue.filter('currency', (value, symbol) => {
     if (typeof value === undefined || typeof symbol === undefined) return value;
-    // console.log(value, symbol, typeof value, typeof symbol);
     //return (value).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     return (value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' ' + symbol;
+});
+
+Vue.filter('toDate', (value) => {
+    if (!value) return value;
+    return moment(value).format('DD/MM/YYYY')
 });
 
 new Vue({

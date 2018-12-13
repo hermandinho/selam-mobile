@@ -147,6 +147,11 @@
                         this.filters.towns.push(t._id);
                     });
                     this.filters.country = res.selectedCountry || '';
+                    if (this.filters.towns.length) {
+                        this.page = 1;
+                        this.data = [];
+                        this.fetchData({}).then(res => { }).catch(err => {});
+                    }
                 })
             },
             showDetails: function (row) {
@@ -204,12 +209,19 @@
                 this.fetchData({}).then(res => {});
             },
             fetchData: function (params) {
-                this.loading = !params.loadingMore;
+                this.loading = !params.loadingMore && !params.refresh;
                 let page = params.page || this.page;
                 let dateSort = this.sorts.date.asc ? 1 : -1;
                 let priceSort = this.sorts.price.asc ? 1 : -1;
+                let regionFilter = this.filters.towns.join(',');
 
-                return API.fetchArticles({ page, limit: 5, dateSort: dateSort, priceSort: priceSort }).then(res => {
+                return API.fetchArticles({
+                    page,
+                    // limit: 5,
+                    dateSort: dateSort,
+                    priceSort: priceSort,
+                    region: regionFilter
+                }).then(res => {
                     const docs = res.data.docs || [];
                     this.maxPages = res.data.pages;
                     this.hasMoreItems = docs.length >= res.data.limit;

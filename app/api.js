@@ -1,6 +1,6 @@
 import axios from 'axios';
-const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
-// const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
+// const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
+const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
 
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -48,6 +48,8 @@ let fetchArticles = (params) => {
         q += '&dateSort=' + params.dateSort;
     if (params.priceSort)
         q += '&priceSort=' + params.priceSort;
+    if (params.region && params.region.length)
+        q += '&region=' + params.region;
 
     return axios.get(API_BASE_URL + '/article' + q);
 };

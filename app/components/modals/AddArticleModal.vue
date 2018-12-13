@@ -272,6 +272,7 @@
                             this.$modal.close();
                         }
                     }).catch(err => {
+                        this.busy = false;
                         alert(err.response.data.error || "Le serveur est indisponible pour le moment. Essayez plus tard.");
                     });
                 } else {
