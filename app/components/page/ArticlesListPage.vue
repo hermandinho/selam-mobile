@@ -31,7 +31,7 @@
                     :selectionBehavior="'None'"
                     pullToRefresh="true"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
-                    @itemTap="showDetails"
+                    @itemTap="showDetails($event, item)"
                     :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
                     @loadMoreDataRequested="loadMore"
                     loadOnDemandBufferSize="3"
@@ -102,6 +102,7 @@
             }
         },
         methods: {
+            onSubmit: function() {},
             onSearchBoxLoaded: function (args) {
                 const page = args.object;
                 const searchbarElement = page.getViewById("articleSearchBar");
@@ -154,17 +155,17 @@
                     }
                 })
             },
-            showDetails: function (row) {
+            showDetails: function (e) {
                 this.$navigateTo(Details, {
                     animated: true,
-                    props: {
-                        item: row.item
-                    },
                     transition: {
                         name: "slide",
-                        duration: 150,
-                        curve: "easeOut"
+                        duration: 250,
+                        curve: "easeIn"
                     },
+                    props: {
+                        article: e.item,
+                    }
                 });
             },
             showFilters: function () {
@@ -188,7 +189,6 @@
                             break;
                     }
                 } ).then(res => {
-                    alert(res)
                     if (res !== undefined) {
                         this.page = 1;
                         this.data = [];
@@ -206,7 +206,7 @@
                 });
             },
             onNavigatedTo: function () {
-                this.fetchData({}).then(res => {});
+                this.fetchData({}).then(res => {}).catch(err => {});
             },
             fetchData: function (params) {
                 this.loading = !params.loadingMore && !params.refresh;

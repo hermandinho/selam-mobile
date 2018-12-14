@@ -14,7 +14,7 @@
             <Label class="price" :text="data.price.amount | currency(data.currency || 'CFA') " row="0" col="1" />
 
             <Label class="date" colSpan="2" row="1" col="0" >Publié le {{ data.updated_at | toDate }}</Label>
-            <Label class="location" colSpan="2" :text="data.region.country.name + ' / ' + data.region.name" row="2" col="0" />
+            <Label class="location" colSpan="2" :text="data.region.country.name + ' / ' + data.region.name" row="2" col="0" v-if="data.region && data.region.country"/>
             <Label class="user" colSpan="2" :text="data.user.name" row="3" col="0" />
         </GridLayout>
     </GridLayout>

@@ -13,6 +13,16 @@ let getters = {
     getNetWorkStatus: (state) => {
         return state.hasNetwork;
     },
+    getCurrentChatUser: (state) => {
+        return state.currentChatUser;
+    },
+    getCurrentConversationId: (state) => {
+        return state.currentConversationId;
+    },
+    getCurrentChatMessages: (state) => {
+        if (!state.currentConversationId || !state.chats[state.currentConversationId]) return [];
+        return state.chats[state.currentConversationId].messages;
+    },
 };
 
 export default getters;

@@ -1,6 +1,7 @@
 import axios from 'axios';
-// const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
-const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
+
+const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
+// const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
 
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -54,8 +55,20 @@ let fetchArticles = (params) => {
     return axios.get(API_BASE_URL + '/article' + q);
 };
 
+let findArticle = (id) => {
+    return axios.get(API_BASE_URL + '/article/' + id);
+};
+
 let createArticle = (params) => {
     return axios.post(API_BASE_URL + '/article/create', params);
+};
+
+let sendMessage = (receiver, params) => {
+    return axios.post(API_BASE_URL + '/message/' + receiver + '/send', params);
+};
+
+let fetchMessages = (receiver) => {
+    return axios.get(API_BASE_URL + '/message/' + receiver + '/fetch');
 };
 
 export default{
@@ -64,5 +77,8 @@ export default{
     register,
     fetchConfigFilters,
     createArticle,
-    fetchArticles
+    fetchArticles,
+    findArticle,
+    sendMessage,
+    fetchMessages
 };

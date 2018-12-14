@@ -27,9 +27,12 @@ Vue.filter('currency', (value, symbol) => {
     return (value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' ' + symbol;
 });
 
-Vue.filter('toDate', (value) => {
+Vue.filter('toDate', (value, withTime) => {
     if (!value) return value;
-    return moment(value).format('DD/MM/YYYY')
+    if (withTime)
+        return moment(value).format('DD/MM/YYYY H:mm:ss');
+    else
+        return moment(value).format('DD/MM/YYYY');
 });
 
 new Vue({

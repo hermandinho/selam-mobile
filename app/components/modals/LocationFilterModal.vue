@@ -4,7 +4,7 @@
             <ActionBar class="action-bar" title="Région">
                 <ActionItem @tap="$modal.close({selectedTowns, selectedCountry})"
                             ios.systemIcon="9" ios.position="left"
-                            android.systemIcon="ic_menu_add" android.position="actionBar"/>
+                            android.systemIcon="ic_menu_save" android.position="actionBar"/>
             </ActionBar>
 
             <ScrollView orientation="horizontal">

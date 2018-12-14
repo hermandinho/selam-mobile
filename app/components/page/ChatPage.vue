@@ -1,5 +1,5 @@
 <template>
-    <Page verticalAlignment="top" backgroundColor="reansparent" >
+    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
             <NavigationButton @tap="onBackButtonTap" android.systemIcon="ic_menu_back"></NavigationButton>
             <Label class="action-bar-title" :text="user.name"></Label>
@@ -11,7 +11,7 @@
         <GridLayout class="main-grid" columns="*" rows="*,auto">
             <ScrollView row="0" column="1" orientation="vertical" height="95%" class="p-0">
                 <RadListView ref="messagesListView"
-                     for="(item, index) in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]"
+                     for="(item, index) in getCurrentChatMessages"
                      class="chatBox"
                      :selectionBehavior="selectedMessages.length ? 'Press' : 'LongPress'"
                      :multipleSelection="true"
@@ -28,10 +28,10 @@
                                        class="bubble message-item"
                                        :class="isIncommingMessage(item) ? 'incomingMessage' : 'outgoingMessage'"
                                        :horizontalAlignment="isIncommingMessage(item) ? 'left' : 'right'"
-                                >Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
+                                >{{ item.content }}</Label>
                             </StackLayout>
                             <StackLayout row="1" :col="isIncommingMessage(item) ? 0 : 1">
-                                <Label row="1" column="1" text="02/02/2018" class="dateTime" marginTop="1"
+                                <Label row="1" column="1" :text="item.sent_at | toDate(true)" class="dateTime" marginTop="1"
                                        :horizontalAlignment="isIncommingMessage(item) ? 'left' : 'right'"> </Label>
                             </StackLayout>
                         </GridLayout>
@@ -51,17 +51,18 @@
 
                 <Label row="0" col="0" class="typing-hint p-5 m-r-5"> is typing ...  ->  {{ selectedMessages.length }}</Label>
 
-                <TextField autocorrect="true"
+                <TextView autocorrect="true" editable="true"
                        row="1" col="0"
                        class="msg-field p-5"
                        v-model="message"
                        color="white"
                        borderwidth="5"
+                       style="color: black; padding: 10"
                        returnKeyType="done"
-                       hint="Votre message" />
+                       hint="Votre message ..." />
 
-                <GridLayout columns="*,*" rows="*" row="1" col="1">
-                    <Image  row="0" col="1" src="res://send_white" width="30" @tap="sendMessage"/>
+                <GridLayout columns="*,*" rows="*" row="1" col="1" verticalalignment="center">
+                    <Image row="0" col="1" src="res://send_white" width="30" @tap="sendMessage" horizontalAlignment="center"  />
                 </GridLayout>
 
             </GridLayout>
@@ -71,6 +72,10 @@
 </template>
 
 <script>
+    import Vuex from 'vuex';
+    const Toast = require('nativescript-toast');
+    import API from '../../api';
+
     export default {
         props: {
             user: {
@@ -79,6 +84,10 @@
                     return {name: 'System', id: -1}
                 },
                 required: true
+            },
+            text: {
+                type: String,
+                default: ''
             }
         },
         name: "chat-page",
@@ -88,19 +97,61 @@
                 selectedMessages: [],
             }
         },
-        computed: { },
+        watch: {
+            getCurrentChatMessages: function (n) {
+                this.$refs.messagesListView.scrollToIndex(n.length, true, 'End');
+            }
+        },
+        computed: {
+            ...Vuex.mapGetters([
+                'getCurrentChatMessages'
+            ]),
+        },
         methods: {
+            ...Vuex.mapActions([
+                'setCurrentConversationId', 'fetchedConversationMessages'
+            ]),
             onBackButtonTap: function () {
                 this.$navigateBack();
             },
-            isIncommingMessage: function (msg) {
-                return msg % 2;
+            fetchChat: function () {
+                if (!this.user || !this.user._id) return;
+                API.fetchMessages(this.user._id).then(res => {
+                    this.fetchedConversationMessages(res.data);
+                    if (res.data && res.data[0]) {
+                        this.setCurrentConversationId(res.data[0].conversation);
+                    }
+                    if (!res.data.length) {
+                        if (this.text) {
+                            this.message = this.text;
+                        }
+                    }
+                }).catch(err => {
+                    alert('Impossible de charger cette discussion.').then(res => {
+                        this.$navigateBack();
+                    })
+                })
             },
-            sendMessage: function (e) {
-                action("Your message", "Cancel button text", ["Option1", "Option2"])
-                .then(result => {
-                    console.log(result);
-                });
+            onNavigatedTo: function () {
+                this.fetchChat();
+            },
+            sendMessage: function () {
+                const params = { content: this.message.trim() };
+                if (!params.content.length) {
+                    Toast.makeText("Impossible d'envoyer des messages vide :)", 'short').show();
+                    return;
+                }
+                this.message = '';
+                API.sendMessage(this.user._id, params).then(res => {
+                    if (res.data) {
+                        this.setCurrentConversationId(res.data.conversation);
+                    }
+                }).catch(err => {
+                    console.log(err);
+                })
+            },
+            isIncommingMessage: function (msg) {
+                return msg.trigger === this.user._id;
             },
             onItemSelected: function ({ index, object }) {
                 const itemSelected = this.selectedMessages[index]
@@ -189,10 +240,7 @@
         text-align: left;
     }
     .bubblePhoto{
-        margin-bottom: 5;
-        margin-left: 5;
-        margin-right: 5;
-        margin-top: 2;
+        margin: 2 5 5;
         background-color: #F2F2F2;
         border-radius: 5px;
         box-shadow: 8px 8px 4px #888888;
@@ -205,10 +253,8 @@
         width: auto;
         padding: 5;
         text-align: left;
-        margin-bottom: 5;
-        margin-left: 5;
-        margin-right: 5;
-        margin-top: 2;
+        margin: 2 5 5;
+        font-size: 16;
     }
     .incomingMessage {
         background-color: #03A9F4;
@@ -244,10 +290,12 @@
     .message-grid {
         color: white;
     }
-    TextField {
+    TextView {
         border-width: 1 1 1 1;
         border-color: #ffffff;
         border-radius: 15;
+        background-color: #ffffff;
+        color: #000000 !important;
     }
     .selected {
         background-color: #0F336D;

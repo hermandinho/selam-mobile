@@ -21,7 +21,7 @@
                     <articles-list-page></articles-list-page>
                 </Frame>
             </TabViewItem>
-            <TabViewItem :bageValue="x" title="" :iconSource="selectedIndex === 2 ? 'res://ic_tab_settings_white' : 'res://ic_tab_settings_black'">
+            <TabViewItem :bageValue="0" title="" :iconSource="selectedIndex === 2 ? 'res://ic_tab_settings_white' : 'res://ic_tab_settings_black'">
                 <Frame>
                     <settings-page></settings-page>
                 </Frame>
@@ -59,14 +59,14 @@
             }
         },
         methods: {
-            ...Vuex.mapActions(['test', 'setPusherInstance', 'setPusherChannel', 'setNetWorkStatus']),
+            ...Vuex.mapActions(['test', 'setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage']),
             tabChanged: function (index) {
                 this.selectedIndex = index.value;
             },
             onLoaded: function () {
                 this.uuid = platform.device.uuid;
-                this.setPusherChannel('selammobile-channel-' + this.uuid);
-                return true;
+                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
+                // return true;
                 if (this.getPusherInstance) {
                     console.log('PUSHER ALREADY INITIALISED');
                     return;
@@ -87,8 +87,9 @@
                             // pusher.disconnect();
                         });
                     }
-                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'debug', (error, data) => {
-                        alert(JSON.stringify(data));
+                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
+                        // alert(JSON.stringify(data.data));
+                        this.receivedMessage(data.data);
                     });
                     /*pusher.subscribePresence('presence-' + this.getPusherChannel, (data) => {
                         alert('PRESENCE: ' + JSON.stringify(data));
