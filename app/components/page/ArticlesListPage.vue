@@ -2,7 +2,7 @@
     <Page verticalAlignment="top" @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
             <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
-            <Label class="action-bar-title" text="Title"></Label>
+            <Label class="action-bar-title" text="Selam Mobile"></Label>
         </ActionBar>
         <GridLayout class="m-5 p-0" rows="auto,auto,*" columns="*" v-if="getNetWorkStatus">
             <SearchBar @loaded="onSearchBoxLoaded" row="0"
@@ -10,34 +10,39 @@
                        hint="Rechercher ..."
                        class="m-b-5"
                        height="auto" :text="searchPhrase"
-                       @textChange="onSubmit"
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
-                <Label class="results-count" col="0" row="0">{{ data.length }} résultats</Label>
+                <Label class="results-count" col="0" row="0">{{ !isDataEmpty ? data.length : 0 }} résultat(s) sur {{ totalData }} </Label>
                 <Image src="res://ic_marker" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showLocationFilterModal"/>
                 <Image src="res://ic_filter" class="filter" col="2" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
                 <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
 
-            <ActivityIndicator row="2" :busy="loading" rowSpan="3" colSpan="1" color="#ec4980" />
+            <ActivityIndicator width="100" row="2" :busy="loading" rowSpan="1" colSpan="1" color="#ec4980" />
 
             <ScrollView orientation="vertical" height="100%" row="2">
                 <RadListView ref="gridView"
                     layout="grid"
                     itemWidth="40%"
                     for="(item, index) in data"
-                    :gridSpanCount="isTablet ? 3 : 1"
+                    :gridSpanCount="isDataEmpty ? 1 : (isTablet ? 3 : 1)"
                     :selectionBehavior="'None'"
                     pullToRefresh="true"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
-                    @itemTap="showDetails($event, item)"
+                    @itemTap="showDetails"
                     :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
                     @loadMoreDataRequested="loadMore"
                     loadOnDemandBufferSize="3"
                 >
-                    <v-template>
-                        <article-grid-view :data="item" :index="index" width="99%"></article-grid-view>
+                    <v-template name="full" if="item._id !== 'empty'">
+                        <article-grid-view :class="index === 0 && !isTablet ? 'first-article' : ''" :data="item" :index="index" width="99%"></article-grid-view>
+                    </v-template>
+                    <v-template name="empty" if="item._id === 'empty'">
+                        <FlexboxLayout class="empty-list-container" flexDirection="column" justifyContent="center"
+                                       alignItems="center" alignContent="center">
+                            <Label alignSelf="center" class="empty-list-text">Liste vide pour l'instant</Label>
+                        </FlexboxLayout>
                     </v-template>
                     <!--<v-template name="footer" v-if="page >= maxPages">
                         <Label text="Fin de la liste"></Label>
@@ -82,6 +87,7 @@
                 },
                 page: 1,
                 maxPages: 1,
+                totalData: 0,
                 hasMoreItems: true,
                 loading: true,
                 sorts: {
@@ -99,10 +105,15 @@
             ...Vuex.mapGetters(['getNetWorkStatus']),
             isTablet: function () {
                 return platform.device.deviceType.toLowerCase() === 'tablet';
+            },
+            isDataEmpty: function () {
+                return this.data.length === 0 || this.data[0]._id === 'empty'
             }
         },
         methods: {
-            onSubmit: function() {},
+            onSubmit: function() {
+                alert('OK')
+            },
             onSearchBoxLoaded: function (args) {
                 const page = args.object;
                 const searchbarElement = page.getViewById("articleSearchBar");
@@ -117,6 +128,7 @@
             onPullToRefreshInitiated: function ({object}) {
                 console.log('Pulling...');
                 this.page = 1;
+                this.totalData = 0;
                 this.data = [];
                 this.fetchData({refresh: true }).then(res => {
                     console.log('PULLING OVER');
@@ -155,16 +167,17 @@
                     }
                 })
             },
-            showDetails: function (e) {
+            showDetails: function ({ object, item, view }) {
                 this.$navigateTo(Details, {
                     animated: true,
+                    frame: 'articlesFrame',
                     transition: {
                         name: "slide",
                         duration: 250,
                         curve: "easeIn"
                     },
                     props: {
-                        article: e.item,
+                        article: item,
                     }
                 });
             },
@@ -205,7 +218,8 @@
                     object.notifyLoadOnDemandFinished(!this.hasMoreItems);
                 });
             },
-            onNavigatedTo: function () {
+            onNavigatedTo: function ({isBackNavigation}) {
+                if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
             },
             fetchData: function (params) {
@@ -224,6 +238,7 @@
                 }).then(res => {
                     const docs = res.data.docs || [];
                     this.maxPages = res.data.pages;
+                    this.totalData = res.data.total;
                     this.hasMoreItems = docs.length >= res.data.limit;
                     if (params.loadingMore) {
                         this.data = this.data.concat(docs);
@@ -234,6 +249,9 @@
                     if (docs.length && this.page <= this.maxPages)
                         this.page ++;
 
+                    if (this.data.length === 0) {
+                        this.data.push({ _id: 'empty' });
+                    }
                     // this.refreshList();
                     this.loading = false;
                     return Promise.resolve(true);
@@ -279,5 +297,20 @@
         font-weight: bold;
         margin-left: auto;
         margin-right: auto;
+    }
+    .empty-list-text {
+        color: #000;
+        font-weight: bolder;
+        font-size: 25;
+        opacity: .2;
+    }
+
+    .empty-list-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .first-article {
+        margin-top: 15;
     }
 </style>

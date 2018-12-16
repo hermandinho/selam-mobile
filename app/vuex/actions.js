@@ -25,6 +25,15 @@ let actions = {
     fetchedConversationMessages: (store, data) => {
         store.commit(TYPES.FETCHED_CONVERSATION_MESSAGES, data);
     },
+    fetchedChatUsers: (store, data) => {
+        store.commit(TYPES.FETCHED_CHAT_USERS, data);
+    },
+    receivedTypingEvent: (store, status) => {
+        store.commit(TYPES.RECEIVED_TYPING_EVENT, status);
+    },
+    deletedConversations: (store, data) => {
+        store.commit(TYPES.DELETED_CONVERSATIONS, data);
+    },
 };
 
 export default actions;

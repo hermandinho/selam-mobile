@@ -12,17 +12,17 @@
                 @loaded="onTabViewLoaded"
                 @unloaded="onTabViewUnloaded">
             <TabViewItem bageValue="50" title="" :iconSource="selectedIndex === 0 ? 'res://ic_tab_chat_white' : 'res://ic_tab_chat_black'">
-                <Frame>
-                    <chat-list-page></chat-list-page>
+                <Frame id="chatFrame">
+                    <chat-list-page @openedChat="handleOpenedChat" @closedChat="handleClosedChat"></chat-list-page>
                 </Frame>
             </TabViewItem>
             <TabViewItem bageValue="1" title="" :iconSource="selectedIndex === 1 ? 'res://ic_tab_shopping_bag_white' : 'res://ic_tab_shopping_bag_black'">
-                <Frame>
+                <Frame id="articlesFrame">
                     <articles-list-page></articles-list-page>
                 </Frame>
             </TabViewItem>
             <TabViewItem :bageValue="0" title="" :iconSource="selectedIndex === 2 ? 'res://ic_tab_settings_white' : 'res://ic_tab_settings_black'">
-                <Frame>
+                <Frame id="settingsFrame">
                     <settings-page></settings-page>
                 </Frame>
             </TabViewItem>
@@ -32,6 +32,7 @@
 
 <script>
     import * as app from 'tns-core-modules/application'
+    import { AD_SIZE, createBanner, hideBanner } from "nativescript-admob";
     const connectivityModule = require("tns-core-modules/connectivity");
     import * as platform from 'tns-core-modules/platform'
     import {Pusher} from 'nativescript-pusher';
@@ -42,6 +43,7 @@
     import {isAndroid, isIOS} from 'platform';
     import {ContentView} from 'ui/content-view';
     import {Label} from 'ui/label';
+    import API from '../api';
 
     export default {
         name: 'app',
@@ -49,60 +51,42 @@
             return {
                 selectedIndex: 0,
                 uuid: null,
-                pusherConnected: false
+                pusherConnected: false,
+                tabViewLayout: null
             }
         },
         computed: {
-            ...Vuex.mapGetters(['getTest', 'getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
+            ...Vuex.mapGetters(['getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
             getToken: function () {
                 return localStorage.getItem('token');
             }
         },
         methods: {
-            ...Vuex.mapActions(['test', 'setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage']),
+            ...Vuex.mapActions(['setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage', 'receivedTypingEvent']),
             tabChanged: function (index) {
                 this.selectedIndex = index.value;
             },
             onLoaded: function () {
+                this.createAddBanner();
                 this.uuid = platform.device.uuid;
-                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
-                // return true;
-                if (this.getPusherInstance) {
-                    console.log('PUSHER ALREADY INITIALISED');
-                    return;
+            },
+            handleOpenedChat: function () {
+                if (this.tabViewLayout) {
+                    setTimeout(() => {
+                        this.tabViewLayout.getLayoutParams().height = 0;
+                        this.tabViewLayout.requestLayout();
+                    },100)
                 }
-                try {
-                    console.log('INITILISE PUSHER INSTANCE');
-                    const pusher = new Pusher('596c2994bf87c324b33c', {
-                        cluster: 'eu',
-                        forceTLS: true,
-                        autoReconnect: false
-                    });
-                    // pusher.unsubscribeAll();
-                    // pusher.disconnect();
-                    if (!this.pusherConnected) {
-                        pusher.connect(() => {
-                            this.pusherConnected = true;
-                            console.log('PUSHER CONNECTED!!: ', this.getPusherChannel);
-                            // pusher.disconnect();
-                        });
-                    }
-                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
-                        // alert(JSON.stringify(data.data));
-                        this.receivedMessage(data.data);
-                    });
-                    /*pusher.subscribePresence('presence-' + this.getPusherChannel, (data) => {
-                        alert('PRESENCE: ' + JSON.stringify(data));
-                    });*/
-                    this.setPusherInstance(pusher);
-
-                } catch (e) {
-                    action("ERROR -> ", e.message);
-                    console.log('ERROR ----> ', e);
+            },
+            handleClosedChat: function () {
+                if (this.tabViewLayout) {
+                    this.tabViewLayout.getLayoutParams().height = 60;
+                    this.tabViewLayout.requestLayout();
                 }
             },
             onTabViewLoaded: function ({object}) {
                 if (isAndroid) {
+                    this.tabViewLayout = object.nativeViewProtected.tabLayout;
                     object._badges = {};
                     const nativeTabView = object._tabLayout.getChildAt(0);
                     for (let i = 0; i < nativeTabView.getChildCount(); i++) {
@@ -147,53 +131,58 @@
                     contentView.onUnloaded();
                 }
             },
-            OnNavigatedTo: function ({object}) {
-                let connectionTypeString;
-                const myConnectionType = connectivityModule.getConnectionType();
-                /*switch (myConnectionType) {
-                    case connectivityModule.connectionType.none:
-                        connectionTypeString = "No Internet connectivity!";
-                        break;
-                    case connectivityModule.connectionType.wifi:
-                        console.log("WiFi connection");
-                        connectionTypeString = "WiFI connectivity!";
-                        break;
-                    case connectivityModule.connectionType.mobile:
-                        connectionTypeString = "Mobile connectivity!";
-                        break;
-                    case connectivityModule.connectionType.ethernet:
-                        connectionTypeString = "Ethernet connectivity!";
-                        break;
-                    case connectionType.bluetooth:
-                        connectionTypeString = "Bluetooth connectivity!";
-                        break;
-                    default:
-                        break;
-                }*/
-                connectivityModule.startMonitoring((newConnectionType) => {
-                    switch (newConnectionType) {
-                        case connectivityModule.connectionType.none:
-                            console.log("Connection type changed to none.");
-                            this.setNetWorkStatus(false);
-                            break;
-                        case connectivityModule.connectionType.wifi:
-                            console.log("Connection type changed to WiFi.");
-                            this.setNetWorkStatus(true);
-                            break;
-                        case connectivityModule.connectionType.mobile:
-                            console.log("Connection type changed to mobile.");
-                            this.setNetWorkStatus(true);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+            OnNavigatedTo: function ({object, isBackNavigation}) {
+                // const myConnectionType = connectivityModule.getConnectionType();
+                try {
+                    connectivityModule.startMonitoring((newConnectionType) => {
+                        switch (newConnectionType) {
+                            case connectivityModule.connectionType.none:
+                                console.log("Connection type changed to none.");
+                                this.setNetWorkStatus(false);
+                                break;
+                            case connectivityModule.connectionType.wifi:
+                                console.log("Connection type changed to WiFi.");
+                                this.setNetWorkStatus(true);
+                                break;
+                            case connectivityModule.connectionType.mobile:
+                                console.log("Connection type changed to mobile.");
+                                this.setNetWorkStatus(true);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                } catch (e) {
+                    console.log('CONNECTION MONITORING ERROR: ', e);
+                }
                 // Explicitly stopping the monitoring
                 // connectivityModule.stopMonitoring();
             },
             OnUnloaded: function ({object}) {
                 console.log('STOP CONNECTIVITY MONITORING.');
                 connectivityModule.stopMonitoring();
+            },
+            createAddBanner: function () {
+                const testing = true;
+                createBanner({
+                    // if this 'view' property is not set, the banner is overlayed on the current top most view
+                    // view: ..,
+                    size: AD_SIZE.SMART_BANNER,
+                    //iosBannerId: "ca-app-pub-9517346003011652/3985369721",
+                    androidBannerId: testing
+                        ? "ca-app-pub-4088662990526474/4824724185"  // global test banner id
+                        : "ca-app-pub-4088662990526474/4824724185", // our registered banner id
+                    // Android automatically adds the connected device as test device with testing:true, iOS does not
+                    // iosTestDeviceIds: ["yourTestDeviceUDIDs", "canBeAddedHere"],
+                    margins: {
+                        // if both are set, top wins
+                        // top: 10
+                        bottom: isIOS ? 50 : 0
+                    },
+                    keywords: ["foo", "bar"]
+                }).then((res) => console.log('Banner created ', res),
+                    error => console.log("Error creating banner: " , error)
+                )
             }
         },
         components: {
@@ -231,5 +220,8 @@
     TabViewItem Image{
         width: 20;
         display: none;
+    }
+    TabViewItem {
+        visibility: collapsed;
     }
 </style>

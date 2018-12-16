@@ -6,10 +6,12 @@ const state = {
     test: 1,
     pusherInstance: null,
     pusherChannel: null,
-    hasNetwork: false,
+    hasNetwork: true,
     chats: {},
     currentChatUser: null,
     currentConversationId: null,
+    chatUsers: [],
+    typers: []
 };
 
 const actions = require('./actions');

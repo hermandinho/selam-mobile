@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
-// const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
+// const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
+const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
 
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -31,8 +31,16 @@ let login = (params) => {
     return axios.post(API_BASE_URL + '/user/login', params)
 };
 
+let logout = () => {
+    return axios.post(API_BASE_URL + '/user/logout')
+};
+
 let register = (params) => {
     return axios.post(API_BASE_URL + '/user/signup', params)
+};
+
+let updateProfile = (id, params) => {
+    return axios.patch(API_BASE_URL + '/user/' + id, params)
 };
 
 let fetchConfigFilters = () => {
@@ -67,18 +75,38 @@ let sendMessage = (receiver, params) => {
     return axios.post(API_BASE_URL + '/message/' + receiver + '/send', params);
 };
 
+let sendTypingEvent = (cid, status, uid) => {
+    return axios.get(API_BASE_URL + '/user/' + cid + '/' + status + '/typing?uid=' + uid);
+};
+
 let fetchMessages = (receiver) => {
     return axios.get(API_BASE_URL + '/message/' + receiver + '/fetch');
+};
+
+let fetchConversations = (params) => {
+    let q = '';
+    if (params.page)
+        q += '?page=' + params.page;
+    return axios.get(API_BASE_URL + '/conversation' + q);
+};
+
+let deleteConversations = (ids) => {
+    return axios.delete(API_BASE_URL + '/conversation/' + ids.join(','));
 };
 
 export default{
     getAPIBaseURL,
     login,
+    logout,
     register,
+    updateProfile,
     fetchConfigFilters,
     createArticle,
     fetchArticles,
     findArticle,
     sendMessage,
-    fetchMessages
+    fetchMessages,
+    fetchConversations,
+    deleteConversations,
+    sendTypingEvent
 };

@@ -7,7 +7,7 @@
         <Gradient direction="to right" colors="#ec4980, #Ac4980">
             <FlexboxLayout flexDirection="column" justifyContent="center" class="full-height">
 
-                <Image src="res://basket_white" class="logo"/>
+                <Image src="res://logo" class="logo"/>
 
                 <StackLayout class="container">
                     <FlexboxLayout alignItems="center" class="border-bottom" v-if="!isLogin">
@@ -53,6 +53,8 @@
 </template>
 
 <script>
+    import {Pusher} from 'nativescript-pusher';
+    import Vuex from 'vuex';
     import * as platform from 'tns-core-modules/platform';
     import App from '../App';
     import API from '../../api';
@@ -78,7 +80,11 @@
         components: {
             App
         },
+        computed: {
+            ...Vuex.mapGetters(['getPusherChannel'])
+        },
         methods: {
+            ...Vuex.mapActions(['setPusherChannel', 'receivedMessage', 'receivedTypingEvent']),
             processForm: function () {
               if (this.isLogin) {
                   if (!this.user.email.trim().length || !this.user.password.trim().length) {
@@ -138,9 +144,39 @@
                     alert(err.response.data.error);
                 })
             },
+            handlePusher: function () {
+                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
+                try {
+                    console.log('INITILISE PUSHER INSTANCE');
+                    const pusher = new Pusher('596c2994bf87c324b33c', {
+                        authEndpoint: API.getAPIBaseURL() + '/pusher/auth',
+                        cluster: 'eu',
+                        forceTLS: true,
+                        autoReconnect: true,
+                    });
+                    pusher.connect(() => {
+                        console.log('PUSHER CONNECTED!!: ', this.getPusherChannel);
+                    });
+
+                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
+                        this.receivedMessage(data.data);
+                    });
+                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
+                        this.receivedTypingEvent(data.data);
+                    });
+                    /*pusher.subscribePresence('presence-selammoibile', (data) => {
+                        alert('PRESENCE: ' + JSON.stringify(data));
+                    });*/
+                    this.setPusherInstance(pusher);
+                } catch (e) {
+                    console.log('PUSHER ERROR ', e)
+                }
+            },
             loginComplete: function (user) {
+                this.handlePusher();
                 this.$navigateTo(App, {
                     animated: true,
+                    frame: 'mainFrame',
                     clearHistory: true,
                     transition: {
                         name: "slide",

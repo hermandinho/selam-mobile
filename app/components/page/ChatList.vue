@@ -1,10 +1,10 @@
 <template>
-    <Page>
+    <Page @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
             <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
             <Label class="action-bar-title" text="Discutions"></Label>
 
-            <ActionItem v-show="selectedItems.length > 0" tap="onShare"
+            <ActionItem v-show="selectedItems.length > 0" @tap="deleteConversations"
                         ios.systemIcon="9" ios.position="left"
                         android.systemIcon="ic_menu_delete" android.position="actionBar"/>
 
@@ -23,34 +23,42 @@
                        @submit="onSubmit" />
 
             <ScrollView orientation="vertical" height="100%">
+
                 <RadListView ref="listView"
-                     for="(item, index) in listItems"
-                     layout="linear"
-                     :multipleSelection="true"
-                     :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
-                     @itemSelected="onItemSelected"
-                     @itemDeselected="onItemDeselected"
-                     pullToRefresh="true"
-                     swipeActions="false"
-                     @pullToRefreshInitiated="onPullToRefreshInitiated"
-                     @itemSwipeProgressStarted="onSwipeStarted"
-                     @itemTap="onItemTap">
-                    <v-template>
+                             for="(item, index) in data"
+                             layout="linear"
+                             :multipleSelection="true"
+                             :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
+                             @itemSelected="onItemSelected"
+                             @itemDeselected="onItemDeselected"
+                             pullToRefresh="true"
+                             @pullToRefreshInitiated="onPullToRefreshInitiated"
+                             @loadMoreDataRequested="loadMore"
+                             loadOnDemandBufferSize="5"
+                             :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
+                             @itemTap="openChat">
+                    <v-template name="full" if="item._id !== 'empty'">
                         <FlexboxLayout :key="index" :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
-                            <Image src="~/assets/images/avatar.png" stretch="aspectFit" class="img-rounded img-thumbnail" width="50"/>
+                            <Image :src="getOtherUser(item) && getOtherUser(item).picture || 'res://ic_no_image'" stretch="aspectFit" class="img-rounded img-thumbnail" width="50"/>
                             <FlexboxLayout flexDirection="column">
                                 <FlexboxLayout flexDirection="row" justifyContent="space-between">
-                                    <Label class="p-10 user-name" marginTop="2">El Manifico</Label>
-                                    <Label class="p-10 msg-date" marginTop="2">
+                                    <Label class="p-10 user-name" marginTop="2">{{ getOtherUser(item) && getOtherUser(item).name || 'N/A' }}</Label>
+                                    <Label class="p-10 msg-date m-r-12" marginTop="2">
                                         <FormattedString>
-                                            <Span text="02/02/2018 " />
-                                            <Span text="9+" class="badge" />
+                                            <Span :text="item.lastMessage && item.lastMessage.sent_at | toDate" />
+                                            <Span text="" class="badge" />
                                         </FormattedString>
                                     </Label>
                                 </FlexboxLayout>
                                 <Label class="p-10 message-preview"
-                                       :textWrap="false" width="90%" opacity="0.6">Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression.</Label>
+                                       :textWrap="false" width="92%" opacity="0.6">{{ item.lastMessage && item.lastMessage.content || '' }}</Label>
                             </FlexboxLayout>
+                        </FlexboxLayout>
+                    </v-template>
+                    <v-template name="empty" if="item._id === 'empty'">
+                        <FlexboxLayout class="empty-list-container" flexDirection="column" justifyContent="center"
+                                       alignItems="center" alignContent="center">
+                            <Label alignSelf="center" class="empty-list-text">Liste vide pour l'instant</Label>
                         </FlexboxLayout>
                     </v-template>
                 </RadListView>
@@ -61,34 +69,90 @@
 </template>
 
 <script>
-    import ChatPage from './ChatPage'
+    import Vuex from 'vuex';
+    import ChatPage from './ChatPage';
+    import ChatPageModal from '../modals/ChatPageModal'
+    import API from '../../api';
+
     export default {
         name: 'chat',
         data: function () {
-          return {
-              searchPhrase: '',
-              listItems: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39],
-              selectedItems: [],
-          }
+            return {
+                searchPhrase: '',
+                data: [],
+                selectedItems: [],
+                maxPages: 0,
+                totalPages: 0,
+                page: 1,
+                loading: false,
+                hasMoreItems: true,
+            }
         },
         computed: {
+            ...Vuex.mapGetters(['getChatUsers', 'getTypers']),
+            me: function () {
+                const user = localStorage.getItem('user');
+                if (!user) return null;
+                return JSON.parse(user);
+            }
         },
         methods: {
-            onSubmit: function (e) {
-                console.log(e);
+            ...Vuex.mapActions(['fetchedChatUsers', 'setCurrentConversationId', 'deletedConversations']),
+            onNavigatedTo: function ({isBackNavigation}) {
+                if (isBackNavigation) {
+                    this.$emit('closedChat');
+                    this.setCurrentConversationId(null);
+                    return;
+                }
+                this.fetchData({}).then(res => {}).catch(err => {});
             },
-            openChat: function ({ index, object }) {
-              this.$navigateTo(ChatPage, {
-                  animated: true,
-                  transition: {
-                      name: "slide",
-                      duration: 250,
-                      curve: "easeIn"
-                  },
-                  props: {
-                      user: { name: 'El Manifico' },
-                  }
-              });
+            getOtherUser: function (item) {
+                if (!item) return;
+                if (item.sender._id !== this.me._id) {
+                    return item.sender;
+                } else {
+                    return item.receiver
+                }
+            },
+            fetchData: function (params) {
+                this.loading = !params.loadingMore && !params.refresh;
+                return API.fetchConversations({page: this.page}).then(res => {
+                    const docs = res.data.docs || [];
+                    this.maxPages = res.data.pages;
+                    this.totalData = res.data.total;
+
+                    this.hasMoreItems = docs.length >= res.data.limit;
+                    if (params.loadingMore) {
+                        this.data = this.data.concat(docs);
+                    } else {
+                        this.data = docs;
+                    }
+                    if (docs.length && this.page <= this.maxPages)
+                        this.page ++;
+                    if (this.data.length === 0) {
+                        this.data.push({ _id: 'empty' });
+                    }
+                    return Promise.resolve(res.data);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            },
+            onSubmit: function (e) {},
+            openChat: function ({ index, object, item }) {
+                this.$emit('openedChat');
+                if (this.selectedItems.length) return;
+                this.$navigateTo(ChatPage, {
+                    animated: true,
+                    frame: 'chatFrame',
+                    /*transition: {
+                        name: "slide",
+                        duration: 120,
+                        curve: "easeIn"
+                    },*/
+                    props: {
+                        user: this.getOtherUser(item) || null
+                    }
+                });
             },
             onItemSelected: function ({ index, object }) {
                 //const itemSelected = this.listItems[index]
@@ -113,12 +177,6 @@
             getItemClass(item) {
                 return this.selectedItems.indexOf(item) >= 0 ? 'selected' : ''
             },
-            onItemTap: function ({ index, object }) {
-                if (this.selectedItems.length) {
-                    return false;
-                }
-                this.openChat({ index, object });
-            },
             onLoaded: function (args) {
                 const page = args.object;
                 const searchbarElement = page.getViewById("searchBar");
@@ -126,38 +184,40 @@
             },
             onPullToRefreshInitiated: function ({object}) {
                 console.log('Pulling...');
-                if (this.selectedItems.length) {
+                this.page = 1;
+                this.data = [];
+                this.fetchData({refresh: true }).then(res => {
                     object.notifyPullToRefreshFinished();
-                } else {
-                    setTimeout(() => {
-                        this.listItems.push(Math.random() * 1000);
-                        object.notifyPullToRefreshFinished();
-                    }, 5000)
-                }
+                }).catch(err => {
+                    object.notifyPullToRefreshFinished();
+                });
             },
-            onSwipeStarted ({ data, object }) {
-                console.log(`Swipe started`);
-                const swipeLimits = data.swipeLimits;
-                const swipeView = object;
-                const leftItem = swipeView.getViewById('mark-view');
-                const rightItem = swipeView.getViewById('delete-view');
-                swipeLimits.left = leftItem.getMeasuredWidth();
-                swipeLimits.right = rightItem.getMeasuredWidth();
-                swipeLimits.threshold = leftItem.getMeasuredWidth() / 2;
+            loadMore: function ({ object }) {
+                console.log('Loading More ....');
+                this.fetchData({loadingMore: true}).then(res => {
+                    object.notifyLoadOnDemandFinished(!this.hasMoreItems);
+                }).catch(err => {
+                    console.log('LOADED MORE ERROR');
+                    object.notifyLoadOnDemandFinished(!this.hasMoreItems);
+                });
             },
-            onLeftSwipeClick (event) {
-                console.log('left action tapped');
-                this.$refs.listView.notifySwipeToExecuteFinished();
-            },
-            onRightSwipeClick ({ object }) {
-                console.log('right action tapped');
-                // remove item
-                this.listItems.splice(this.listItems.indexOf(object.bindingContext), 1);
-                this.$refs.listView.notifySwipeToExecuteFinished();
-            },
+            deleteConversations: function () {
+                const ids = [];
+                this.selectedItems.map(i => {
+                    ids.push(i._id);
+                });
+                API.deleteConversations(ids).then(res => {
+                    this.data = this.data.filter(u => ids.indexOf(u._id) === -1);
+                    setTimeout((res) => {
+                        this.setSelectedItems();
+                        this.$refs.listView.refresh();
+                    }, 100)
+                })
+            }
         },
         components: {
-            ChatPage
+            ChatPage,
+            ChatPageModal
         }
     };
 </script>
@@ -197,5 +257,11 @@
     .badge {
         color: #ec4980;
         font-size: 12;
+    }
+    .empty-list-text {
+        color: #000;
+        font-weight: bolder;
+        font-size: 25;
+        opacity: .3;
     }
 </style>

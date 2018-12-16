@@ -38,7 +38,7 @@ Vue.filter('toDate', (value, withTime) => {
 new Vue({
     store,
     template: `
-        <Frame>
+        <Frame id="mainFrame">
             <Login v-if="!isLoggedIn" />
             <App v-if="isLoggedIn" />
         </Frame>`,

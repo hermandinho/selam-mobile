@@ -1,5 +1,5 @@
 <template>
-    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo">
+    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo" class="chatPage">
         <ActionBar class="action-bar" color="#ffffff">
             <NavigationButton @tap="onBackButtonTap" android.systemIcon="ic_menu_back"></NavigationButton>
             <Label class="action-bar-title" :text="user.name"></Label>
@@ -19,11 +19,11 @@
                      @itemDeselected="onItemDeselected"
                      style="margin-bottom: 3">
                     <v-template>
-                        <GridLayout :key="index" :class="getItemClass(item)" :columns="isIncommingMessage(item) ? '3*,*' : '*,3*'" rows="auto,auto" width="100%">
+                        <GridLayout :key="item._id + '_' + index" :class="getItemClass(item)" :columns="isIncommingMessage(item) ? '3*,*' : '*,3*'" rows="auto,auto" width="100%">
                             <!--imcoming message Image-->
                             <!--<Image row="0" col="0" src="item.incomingMessageDP" class="avatar" stretch="aspectFit" opacity="1"></Image>-->
                             <StackLayout row="0" :col="isIncommingMessage(item) ? 0 : 1" class="chat">
-                                <Label width="auto"
+                                <Label width="auto" :key="'msg' + item._id"
                                        textWrap="true"
                                        class="bubble message-item"
                                        :class="isIncommingMessage(item) ? 'incomingMessage' : 'outgoingMessage'"
@@ -49,7 +49,7 @@
                 horizontalAlignment="center"
                 class="p-10 m-b-0 message-grid">
 
-                <Label row="0" col="0" class="typing-hint p-5 m-r-5"> is typing ...  ->  {{ selectedMessages.length }}</Label>
+                <Label row="0" col="0" class="typing-hint p-5 m-r-5" v-if="getTypers.length && getTypers.indexOf(user._id) !== -1 ">écrit ...</Label>
 
                 <TextView autocorrect="true" editable="true"
                        row="1" col="0"
@@ -57,6 +57,7 @@
                        v-model="message"
                        color="white"
                        borderwidth="5"
+                       @textChange="handleTypingEvent"
                        style="color: black; padding: 10"
                        returnKeyType="done"
                        hint="Votre message ..." />
@@ -88,6 +89,14 @@
             text: {
                 type: String,
                 default: ''
+            },
+            fromFrame: {
+                type: String,
+                default: 'chatFrame'
+            },
+            isModal: {
+                type: Boolean,
+                default: false
             }
         },
         name: "chat-page",
@@ -95,6 +104,8 @@
             return {
                 message: '',
                 selectedMessages: [],
+                typing: false,
+                timeout: undefined
             }
         },
         watch: {
@@ -104,15 +115,24 @@
         },
         computed: {
             ...Vuex.mapGetters([
-                'getCurrentChatMessages'
+                'getCurrentChatMessages', 'getCurrentConversationId', 'getTypers'
             ]),
+            me: function () {
+                const user = localStorage.getItem('user');
+                if (!user) return;
+                return JSON.parse(localStorage.getItem('user'));
+            }
         },
         methods: {
             ...Vuex.mapActions([
-                'setCurrentConversationId', 'fetchedConversationMessages'
+                'setCurrentConversationId', 'fetchedConversationMessages', 'receivedMessage'
             ]),
-            onBackButtonTap: function () {
-                this.$navigateBack();
+            onBackButtonTap: function ({object, view}) {
+                if (this.isModal) {
+                    this.$modal.close();
+                } else {
+                    this.$navigateBack(/*{ frame: 'chatFrame',  }*/);
+                }
             },
             fetchChat: function () {
                 if (!this.user || !this.user._id) return;
@@ -132,7 +152,7 @@
                     })
                 })
             },
-            onNavigatedTo: function () {
+            onNavigatedTo: function ({object}) {
                 this.fetchChat();
             },
             sendMessage: function () {
@@ -146,6 +166,7 @@
                     if (res.data) {
                         this.setCurrentConversationId(res.data.conversation);
                     }
+                    this.receivedMessage(res.data);
                 }).catch(err => {
                     console.log(err);
                 })
@@ -175,6 +196,23 @@
             },
             getItemClass(item) {
                 return this.selectedMessages.indexOf(item) >= 0 ? '_selected' : ''
+            },
+            emitStopTypingEvent: function () {
+                this.typing = false;
+                API.sendTypingEvent(this.getCurrentConversationId, false, this.user._id);
+            },
+            emitTypingEvent: function () {
+                API.sendTypingEvent(this.getCurrentConversationId, true, this.user._id);
+            },
+            handleTypingEvent: function () {
+                if (!this.typing) {
+                    this.typing = true;
+                    this.emitTypingEvent(true);
+                    this.timeout = setTimeout(this.emitStopTypingEvent, 2000);
+                } else {
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(this.emitStopTypingEvent, 2000);
+                }
             }
         }
     }

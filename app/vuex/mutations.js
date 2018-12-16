@@ -35,6 +35,22 @@ let mutations = {
         }
         state.chats[message.conversation].messages.push(message);
     },
+    [TYPES.FETCHED_CHAT_USERS]: (state, data) => {
+        state.chatUsers = data;
+    },
+    [TYPES.RECEIVED_TYPING_EVENT]: (state, data) => {
+        if (!data || !data.hasOwnProperty('status')) return;
+        if (data.status) {
+            state.typers.push(data.user);
+        } else {
+            state.typers = state.typers.filter(t => t !== data.user);
+        }
+    },
+    [TYPES.DELETED_CONVERSATIONS]: (state, data) => {
+        if (!data || !data.length) return;
+        state.chatUsers = state.chatUsers.filter(u => data.indexOf(u._id) === -1);
+        state.chatUsers = [];
+    },
 };
 
 export default mutations;

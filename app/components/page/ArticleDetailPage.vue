@@ -1,7 +1,7 @@
 <template>
     <Page verticalAlignment="top" class="page" @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
-            <NavigationButton @tap="$navigateBack()" android.systemIcon="ic_menu_back" />
+            <NavigationButton @tap="$navigateBack({ frame: 'articlesFrame' })" android.systemIcon="ic_menu_back" />
             <Label class="action-bar-title" :text="getArticle.title"></Label>
             <ActionItem v-show="isMyArticle"
                         ios.systemIcon="9" ios.position="left"
@@ -91,8 +91,9 @@
 </template>
 
 <script>
+    import Vuex from 'vuex';
     const phoneManager = require( "nativescript-phone" );
-    import ChatPage from './ChatPage'
+    import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
     export default {
         props: {
@@ -110,7 +111,7 @@
             }
         },
         components: {
-            ChatPage
+            ChatPageModal
         },
         computed: {
             getArticle: function () {
@@ -125,6 +126,7 @@
             }
         },
         methods: {
+            ...Vuex.mapActions(['setCurrentConversationId']),
             onNavigatedTo: function () {
                 this.fetchData();
             },
@@ -163,17 +165,21 @@
                 });
             },
             goToChat: function (user) {
-                return this.$navigateTo(ChatPage, {
+                return this.$showModal(ChatPageModal, {
                     animated: true,
-                    transition: {
+                    fullscreen: false,
+                    /*transition: {
                         name: "slide",
                         duration: 250,
                         curve: "easeIn"
-                    },
+                    },*/
                     props: {
                         user,
-                        text: `Salut ${this.getArticle.user.name}, je suis interessé par l'article: '${this.getArticle.title}' que vous avez publié sur l'app Selam Mobile.`
+                        text: `Salut ${this.getArticle.user.name}, je suis interessé par l'article: '${this.getArticle.title}' que vous avez publié sur l'app Selam Mobile.`,
+                        fromFrame: 'articlesFrame',
                     }
+                }).then(res => {
+                    this.setCurrentConversationId(null);
                 });
             }
         }

@@ -23,6 +23,12 @@ let getters = {
         if (!state.currentConversationId || !state.chats[state.currentConversationId]) return [];
         return state.chats[state.currentConversationId].messages;
     },
+    getChatUsers: (state) => {
+        return state.chatUsers;
+    },
+    getTypers: (state) => {
+        return state.typers;
+    },
 };
 
 export default getters;
