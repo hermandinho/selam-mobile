@@ -6,7 +6,9 @@
         height="300"
         class="m-b-10"
     >
-        <Image :src="data.pictures[0] || 'res://ic_no_image'" :stretch="data.pictures[0] ? 'aspectFill' : 'aspectFit'" left="0" top="0" width="100%" height="100%" class="img-thumbnail"/>
+        <ImageCacheIt :stretch="data.pictures[0] ? 'aspectFill' : 'aspectFit'"  resize="300,300" placeHolder="res://ic_no_image" errorHolder="res://ic_no_image" :imageUri="data.pictures[0] || 'res://ic_no_image'"/>
+
+        <!--<Image :src="data.pictures[0] || 'res://ic_no_image'" :stretch="data.pictures[0] ? 'aspectFill' : 'aspectFit'" left="0" top="0" width="100%" height="100%" class="img-thumbnail"/>-->
 
         <GridLayout row="1" col="0" backgroundColor="lightgray" columns="*,*" rows="*,*,*,*" class="p-10">
             <Label class="name" :text="data.title" row="0" col="0" />
@@ -41,7 +43,7 @@
 
 <style scoped lang="scss">
     .name, .price {
-        font-weight: bold;
+        font-weight: bolder;
         font-size: 15;
     }
 
@@ -51,7 +53,7 @@
 
     .date, .location, .user {
         font-style: italic;
-        font-weight: normal;
+        font-weight: bold;
         font-size: 10;
     }
     .img-thumbnail {

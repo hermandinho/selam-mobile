@@ -16,7 +16,7 @@
                 <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
 
-                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'"
+                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
                        width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFill' : 'aspectFit'"
                        height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
 
@@ -92,7 +92,9 @@
 
 <script>
     import Vuex from 'vuex';
-    const phoneManager = require( "nativescript-phone" );
+    const phoneManager = require("nativescript-phone");
+    const PhotoViewer = require("nativescript-photoviewer");
+
     import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
     export default {
@@ -108,6 +110,7 @@
                 activeImageIndex: 0,
                 loading: false,
                 freshArticle: null,
+                photoViewerInstance: null
             }
         },
         components: {
@@ -129,6 +132,26 @@
             ...Vuex.mapActions(['setCurrentConversationId']),
             onNavigatedTo: function () {
                 this.fetchData();
+                //this.setupImageViewer();
+            },
+            setupImageViewer: function () {
+                if (!this.getArticle || !this.getArticle.pictures.length) return;
+                let photoViewer = new PhotoViewer();
+                photoViewer.paletteType = "LIGHT_MUTED"; // Android only
+                photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
+                this.photoViewerInstance = photoViewer;
+            },
+            showGallery: function() {
+                if (!this.getArticle || !this.getArticle.pictures.length) return;
+                let photoViewer = new PhotoViewer();
+                photoViewer.paletteType = "LIGHT_MUTED"; // Android only
+                photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
+                photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
+                photoViewer.showViewer(this.getArticle.pictures);
+                /*if (this.photoViewerInstance) {
+                    this.photoViewerInstance.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
+                    this.photoViewerInstance.showViewer(this.getArticle.pictures);
+                }*/
             },
             fetchData: function () {
                 this.loading = true;

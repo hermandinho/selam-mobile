@@ -1,42 +1,58 @@
 <template>
     <Frame>
-        <Page  verticalAlignment="top"  @navigatedTo="onNavigatedTo" @unLoaded="resetState">
-            <ActionBar class="action-bar" title="Région">
-                <ActionItem @tap="$modal.close({selectedTowns, selectedCountry})"
-                            ios.systemIcon="9" ios.position="left"
-                            android.systemIcon="ic_menu_save" android.position="actionBar"/>
-            </ActionBar>
+    <Page  verticalAlignment="top"  @navigatedTo="onNavigatedTo">
+        <ActionBar class="action-bar" title="Région">
+            <ActionItem @tap="$modal.close()"
+                        ios.systemIcon="9" ios.position="left"
+                        android.systemIcon="ic_menu_save" android.position="actionBar"/>
+        </ActionBar>
 
-            <ScrollView orientation="horizontal">
-                <GridLayout class="m-4 p-10" colomns="*" rows="auto,auto,*" width="100%" orientation="horizontal">
-                    <ActivityIndicator row="4" :busy="loading" rowSpan="1" color="#ec4980" />
+        <ScrollView orientation="horizontal">
+            <StackLayout orientation="vertical" width="100%">
+                <SegmentedBar selectedBackgroundColor="#ec4980" v-model="selectedFiltersTab">
+                    <SegmentedBarItem title="Lieu" />
+                    <SegmentedBarItem title="Options" />
+                </SegmentedBar>
 
-                    <ListPicker v-if="countries.length" :items="countries" :selectedIndex="selectedCountryIndex" col="0" row="0" width="90%"
+                <GridLayout class="m-4 p-8" colomns="*" rows="auto,*,*,*" width="100%" orientation="horizontal"  v-show="selectedFiltersTab === 0">
+                    <ListPicker v-if="countries.length" :items="countries" :selectedIndex="selectedCountryIndex" col="0" row="1" width="90%"
                                 @selectedIndexChange="selectedIndexChanged" @loaded="onListViewLoaded"/>
-
-                    <Label class="line" row="1" col="0" :text="preselectedTownsIds"/>
-                    <ListView for="item in filteredTowns" @itemTap="townSelected" row="2" height="*" ref="townsListView">
+                    <!--<Label class="line" row="1" col="0" :text="preselectedTownsIds"/>-->
+                    <ListView for="item in filteredTowns" row="2" height="100%" ref="townsListView">
                         <v-template>
-                            <FlexboxLayout flexDirection="columns" :key="item._id">
-                                <Label :text="item.name" class="p-10" flexGrow="5"/>
+                            <FlexboxLayout flexDirection="columns" :key="item && item._id">
+                                <Label :text="item.name" class="p-10 option-label" flexGrow="5"/>
 
-                                <Switch v-model="preselectedTownsIds[item._id]" flexGrow="1" @checkedChange="handleSelectChange($event, item)"/>
+                                <Switch v-model="preselectedTowns[item && item._id || null]" flexGrow="1" @checkedChange="handleSelectChange($event, item)"/>
                             </FlexboxLayout>
                         </v-template>
                     </ListView>
                 </GridLayout>
-            </ScrollView>
-        </Page>
+
+                <GridLayout colomns="*" rows="auto" width="100%" orientation="horizontal" v-show="selectedFiltersTab === 1" class="p-8">
+                    <ListView for="option in filterOptions"  height="100%" row="0">
+                        <v-template>
+                            <FlexboxLayout flexDirection="columns" :key="option.label">
+                                <Label :text="option.label" class="p-10 option-label" flexGrow="5"/>
+                                <Switch v-model="options[option.key]" flexGrow="1" @checkedChange="handleOptionSelectChange($event, option)"/>
+                            </FlexboxLayout>
+                        </v-template>
+                    </ListView>
+                </GridLayout>
+            </StackLayout>
+
+        </ScrollView>
+    </Page>
     </Frame>
 </template>
 
 <script>
     import API from '../../api'
+    import Vuex from 'vuex';
+
     export default {
         name: "location-filter-modal",
         props: {
-            oldTowns: { type: Array, default: [] },
-            country: { type: String, default: "" },
         },
         data: function () {
             return {
@@ -49,84 +65,64 @@
                 selectedCountry: '',
                 selectedCountryIndex: 0,
                 preselectedTownsIds: [],
-                dirty: false
+                dirty: false,
+                selectedFiltersTab: 0,
+                filterOptions: [{ label: 'Prix Fix', key: 'fixedPrice', value: false }, { label: 'Echange', key: 'exchange', value: true }],
+                options: {}
             }
         },
         watch: {
             countries: function (n) {
-                this.resetState();
                 this.filteredTowns = this.towns.filter(t => t.country.name === n[0]);
             },
             selectedCountryIndex: function (n, o) {
-                this.resetState();
                 this.filteredTowns = this.towns.filter(t => t.country.name === this.countries[n]);
             },
         },
-        computed: {  },
+        computed: {
+            ...Vuex.mapGetters(['getSearchFilters']),
+            preselectedTowns: function () {
+                const data = this.getSearchFilters.selectedTowns;
+                const res ={};
+                this.filteredTowns.map(f => {
+                    data.map(d => {
+                        if (d._id === f._id) {
+                            res[d._id] = true
+                        }
+                    })
+                });
+                return res;
+            }
+        },
         methods: {
-            resetState: function () {
-                if (this.dirty) {
-                    this.preselectedTownsIds = [];
-                    this.selectedTowns = [];
+            ...Vuex.mapActions([
+                'toggleTownSelect', 'toggleCountrySelect', 'toggleSearchOption'
+            ]),
+            onNavigatedTo: function () {
+                if (this.getSearchFilters) {
+                    this.towns = this.getSearchFilters.towns || [];
+                    this.countries = this.getSearchFilters.countries || [];
+                    this.selectedCountry = this.getSearchFilters.selectedCountry;
+                    this.selectedCountryIndex = this.countries.indexOf(this.selectedCountry);
+                    this.filteredTowns = this.towns.filter(t => t.country.name === this.selectedCountry);
+                    this.selectedTowns = this.getSearchFilters.selectedTowns || [];
+                    this.options = JSON.parse(JSON.stringify(this.getSearchFilters.options)) || {};
                 }
             },
-            onNavigatedTo: function () {
-                this.loading = true;
-                this.dirty = false;
-                API.fetchConfigFilters().then(res => {
-                    const data = res.data;
-                    data.countries.map(c => {
-                        this.countries.push(c.name);
-                    });
-                    this.towns = data.towns;
-
-                    if (this.country) {
-                        this.selectedCountryIndex = this.countries.indexOf(this.country) || 0;
-                    }
-
-                    if (this.oldTowns && this.oldTowns.length) {
-                        this.towns.map(t => {
-                            this.oldTowns.map(o => {
-                                if (t._id === o) {
-                                    console.log('SELECTED ' + t.name);
-                                    this.selectedTowns.push(t);
-                                    this.preselectedTownsIds[o] = true;
-                                }
-                            })
-                        })
-                    }
-                    this.loading = false;
-                }).catch(err => {
-                    this.loading = false;
-                })
-            },
             selectedIndexChanged: function ({value, oldValue}) {
-                // alert(value + ' --> ' + oldValue + ' ------> ' + this.selectedCountryIndex);
-                this.dirty = true;
-                this.resetState();
-
                 const ctry = this.countries[value];
-                this.selectedCountry = ctry;
                 this.filteredTowns = this.towns.filter(t => t.country.name === ctry);
-               /* if (this.$refs.townsListView) {
-                    this.$refs.townsListView.refresh();
-                }*/
+                this.toggleCountrySelect(ctry);
+                this.toggleTownSelect(null);
             },
             onListViewLoaded: function ({object}) {
             },
-            townSelected: function (item) {
-            },
             handleSelectChange: function ({value}, item) {
-                // this.dirty = true;
-                this.resetState();
-                if (value) {
-                    this.selectedTowns.push(item);
-                } else {
-                    this.selectedTowns = this.selectedTowns.filter(t => t._id !== item._id)
-                }
+                this.toggleTownSelect(item);
             },
-            isTownSelected: function (item) {
-                return this.selectedTowns.filter(t => t._id !== item._id).length > 0;
+            handleOptionSelectChange: function ({value}, item) {
+                item.value = value;
+                this.toggleSearchOption(item);
             }
         }
     }
@@ -136,6 +132,12 @@
     .line {
         border-bottom-width: 1;
     }
-    ListPicker {
+    .option-label {
+        font-size: 14;
+        font-weight: bold;
+    }
+    SegmentedBarItem {
+        font-size: 18;
+        font-weight: bolder;
     }
 </style>

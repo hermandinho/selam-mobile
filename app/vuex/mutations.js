@@ -51,6 +51,31 @@ let mutations = {
         state.chatUsers = state.chatUsers.filter(u => data.indexOf(u._id) === -1);
         state.chatUsers = [];
     },
+    [TYPES.FETCHED_SEARCH_FILTERS]: (state, data) => {
+        if (!data) return;
+        state.searchFilters.countries = data.countries || [];
+        state.searchFilters.towns = data.towns || [];
+    },
+    [TYPES.TOGGLE_TOWN_COUNTRY]: (state, data) => {
+        if (!data) return;
+        state.searchFilters.selectedCountry = data;
+    },
+    [TYPES.TOGGLE_SEARCH_OPTION]: (state, data) => {
+        if (!data) return;
+        state.searchFilters.options[data.key] = data.value;
+    },
+    [TYPES.TOGGLE_TOWN_SELECT]: (state, data) => {
+        if (!data) {
+            state.searchFilters.selectedTowns = []
+        } else {
+            let check = state.searchFilters.selectedTowns.filter(t => t._id === data._id);
+            if (!check.length)
+                state.searchFilters.selectedTowns.push(data);
+            else {
+                state.searchFilters.selectedTowns = state.searchFilters.selectedTowns.filter(t => t._id !== data._id)
+            }
+        }
+    },
 };
 
 export default mutations;
