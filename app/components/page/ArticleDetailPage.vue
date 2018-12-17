@@ -24,12 +24,13 @@
                     <GridLayout rows="auto" columns="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto">
                         <Image
                             @tap="activeImageIndex = i"
-                            :src="getArticle.pictures[i] || 'res://ic_no_image'"
+                            :src="img || 'res://ic_no_image'"
                             stretch="aspectFill"
                             width="65" height="65"
                             class="preview-image"
                             :class="i === activeImageIndex ? 'active': ''"
                             :col="i" row="0"
+                            :key="img + '' + i"
                             v-for="(img, i) in getArticle.pictures"/>
                     </GridLayout>
                 </ScrollView>
@@ -78,10 +79,18 @@
                 </GridLayout>
 
                 <FlexboxLayout v-if="!isMyArticle" justifyContent="space-around" alignItems="center" flexDirection="columns" row="10" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
-                    <Image v-if="getArticle.user && getArticle.user.acceptEmails"src="res://ic_email" stretch="aspectFill" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptChats" @tap="goToChat(getArticle.user)" src="res://ic_speech_bubble" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptPhone && getArticle.user.phoneNumber" @tap="dialPhoneNumber(getArticle.user.phoneNumber)" src="res://ic_phone_contact" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptSMS && getArticle.user.phoneNumber" @tap="sendSMS(getArticle.user.phoneNumber)" src="res://ic_sms" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
+                    <Ripple borderRadius="20">
+                        <Image v-if="getArticle.user && getArticle.user.acceptEmails"src="res://ic_email" stretch="aspectFill" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="goToChat(getArticle.user)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptChats" src="res://ic_speech_bubble" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="dialPhoneNumber(getArticle.user.phoneNumber)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptPhone && getArticle.user.phoneNumber" src="res://ic_phone_contact" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="sendSMS(getArticle.user.phoneNumber)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptSMS && getArticle.user.phoneNumber" src="res://ic_sms" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
                 </FlexboxLayout>
 
             </GridLayout>
@@ -147,7 +156,7 @@
                 photoViewer.paletteType = "LIGHT_MUTED"; // Android only
                 photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
                 photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
-                photoViewer.showViewer(this.getArticle.pictures);
+                //photoViewer.showViewer(this.getArticle.pictures);
                 /*if (this.photoViewerInstance) {
                     this.photoViewerInstance.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
                     this.photoViewerInstance.showViewer(this.getArticle.pictures);

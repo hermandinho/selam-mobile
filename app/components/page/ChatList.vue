@@ -260,7 +260,7 @@
     }
     .empty-list-text {
         color: #000;
-        font-weight: bolder;
+        font-weight: bold;
         font-size: 25;
         opacity: .3;
     }

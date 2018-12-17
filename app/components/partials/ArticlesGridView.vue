@@ -6,7 +6,12 @@
         height="300"
         class="m-b-10"
     >
-        <ImageCacheIt :stretch="data.pictures[0] ? 'aspectFill' : 'aspectFit'"  resize="300,300" placeHolder="res://ic_no_image" errorHolder="res://ic_no_image" :imageUri="data.pictures[0] || 'res://ic_no_image'"/>
+        <ImageCacheIt
+                :stretch="'fill'"
+                resize="1024,1024"
+                placeHolder="res://ic_no_image"
+                errorHolder="res://ic_no_image"
+                :imageUri="data.pictures[0] || 'res://ic_no_image'"/>
 
         <!--<Image :src="data.pictures[0] || 'res://ic_no_image'" :stretch="data.pictures[0] ? 'aspectFill' : 'aspectFit'" left="0" top="0" width="100%" height="100%" class="img-thumbnail"/>-->
 
@@ -37,13 +42,20 @@
             return {}
         },
         components: {},
-        methods: {}
+        methods: {
+            getImageFillMode: function (data) {
+                if (data && data.pictures.length === 0)
+                    return 'aspectFit';
+                else
+                    return 'aspectFill';
+            }
+        }
     }
 </script>
 
 <style scoped lang="scss">
     .name, .price {
-        font-weight: bolder;
+        font-weight: bold;
         font-size: 15;
     }
 

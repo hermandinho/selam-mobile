@@ -21,6 +21,7 @@
     "nativescript-phone": "1.4.0",
     "nativescript-photoviewer": "^1.4.0",
     "nativescript-pusher": "1.0.1",
+    "nativescript-ripple": "2.1.0",
     "nativescript-theme-core": "~1.0.4",
     "nativescript-toast": "1.4.6",
     "nativescript-ui-listview": "5.0.0",

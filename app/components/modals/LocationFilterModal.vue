@@ -2,7 +2,8 @@
     <Frame>
     <Page  verticalAlignment="top"  @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" title="Région">
-            <ActionItem @tap="$modal.close()"
+            <NavigationButton @tap="$modal.close(false)" android.systemIcon="ic_menu_back" />
+            <ActionItem @tap="$modal.close(true)"
                         ios.systemIcon="9" ios.position="left"
                         android.systemIcon="ic_menu_save" android.position="actionBar"/>
         </ActionBar>
@@ -138,6 +139,6 @@
     }
     SegmentedBarItem {
         font-size: 18;
-        font-weight: bolder;
+        font-weight: bold;
     }
 </style>

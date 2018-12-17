@@ -144,36 +144,8 @@
                     alert(err.response.data.error);
                 })
             },
-            handlePusher: function () {
-                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
-                try {
-                    console.log('INITILISE PUSHER INSTANCE');
-                    const pusher = new Pusher('596c2994bf87c324b33c', {
-                        authEndpoint: API.getAPIBaseURL() + '/pusher/auth',
-                        cluster: 'eu',
-                        forceTLS: true,
-                        autoReconnect: true,
-                    });
-                    pusher.connect(() => {
-                        console.log('PUSHER CONNECTED!!: ', this.getPusherChannel);
-                    });
 
-                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
-                        this.receivedMessage(data.data);
-                    });
-                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
-                        this.receivedTypingEvent(data.data);
-                    });
-                    /*pusher.subscribePresence('presence-selammoibile', (data) => {
-                        alert('PRESENCE: ' + JSON.stringify(data));
-                    });*/
-                    this.setPusherInstance(pusher);
-                } catch (e) {
-                    console.log('PUSHER ERROR ', e)
-                }
-            },
             loginComplete: function (user) {
-                this.handlePusher();
                 this.$navigateTo(App, {
                     animated: true,
                     frame: 'mainFrame',

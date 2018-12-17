@@ -34,7 +34,7 @@
     import * as app from 'tns-core-modules/application'
     import { AD_SIZE, createBanner, hideBanner } from "nativescript-admob";
     const connectivityModule = require("tns-core-modules/connectivity");
-    import * as platform from 'tns-core-modules/platform'
+    import * as platform from 'tns-core-modules/platform';
     import {Pusher} from 'nativescript-pusher';
     import Vuex from 'vuex';
     import ChatListPage from './page/ChatList';
@@ -73,6 +73,7 @@
             handleOpenedChat: function () {
                 if (this.tabViewLayout) {
                     setTimeout(() => {
+                        console.log(this.tabViewLayout);
                         this.tabViewLayout.getLayoutParams().height = 0;
                         this.tabViewLayout.requestLayout();
                     },100)
@@ -80,7 +81,7 @@
             },
             handleClosedChat: function () {
                 if (this.tabViewLayout) {
-                    this.tabViewLayout.getLayoutParams().height = 60;
+                    this.tabViewLayout.getLayoutParams().height = 145;
                     this.tabViewLayout.requestLayout();
                 }
             },
@@ -132,6 +133,7 @@
                 }
             },
             OnNavigatedTo: function ({object, isBackNavigation}) {
+                this.handlePusher();
                 // const myConnectionType = connectivityModule.getConnectionType();
                 try {
                     connectivityModule.startMonitoring((newConnectionType) => {
@@ -183,7 +185,35 @@
                 }).then((res) => console.log('Banner created ', res),
                     error => console.log("Error creating banner: " , error)
                 )
-            }
+            },
+            handlePusher: function () {
+                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
+                try {
+                    console.log('INITILISE PUSHER INSTANCE');
+                    const pusher = new Pusher('596c2994bf87c324b33c', {
+                        authEndpoint: API.getAPIBaseURL() + '/pusher/auth',
+                        cluster: 'eu',
+                        forceTLS: true,
+                        autoReconnect: true,
+                    });
+                    pusher.connect(() => {
+                        console.log('PUSHER CONNECTED!!: ', this.getPusherChannel);
+                    });
+
+                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
+                        this.receivedMessage(data.data);
+                    });
+                    pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
+                        this.receivedTypingEvent(data.data);
+                    });
+                    /*pusher.subscribePresence('presence-selammoibile', (data) => {
+                        alert('PRESENCE: ' + JSON.stringify(data));
+                    });*/
+                    this.setPusherInstance(pusher);
+                } catch (e) {
+                    console.log('PUSHER ERROR ', e)
+                }
+            },
         },
         components: {
             ChatListPage,
