@@ -59,6 +59,8 @@ let fetchArticles = (params) => {
         q += '&priceSort=' + params.priceSort;
     if (params.region && params.region.length)
         q += '&region=' + params.region;
+    if (params.search && params.search.trim().length)
+        q += '&search=' + params.search;
 
     return axios.get(API_BASE_URL + '/article' + q);
 };

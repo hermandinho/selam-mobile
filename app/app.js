@@ -15,11 +15,12 @@ Vue.use(Vuex);
 Vue.use(RadListView);
 Vue.registerElement('Gradient', () => require('nativescript-gradient').Gradient);
 Vue.registerElement('Fab', () => require('nativescript-floatingactionbutton').Fab);
+Vue.registerElement('ImageCacheIt', () => require('nativescript-image-cache-it').ImageCacheIt);
 
 import App from "./components/App";
 import Login from './components/page/LoginPage'
 
-Vue.config.silent = true;
+Vue.config.silent = false;
 
 Vue.filter('currency', (value, symbol) => {
     if (typeof value === undefined || typeof symbol === undefined) return value;

@@ -29,6 +29,9 @@ let getters = {
     getTypers: (state) => {
         return state.typers;
     },
+    getSearchFilters: (state) => {
+        return state.searchFilters;
+    },
 };
 
 export default getters;

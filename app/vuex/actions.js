@@ -34,6 +34,18 @@ let actions = {
     deletedConversations: (store, data) => {
         store.commit(TYPES.DELETED_CONVERSATIONS, data);
     },
+    fetchedSearchFilters: (store, data) => {
+        store.commit(TYPES.FETCHED_SEARCH_FILTERS, data);
+    },
+    toggleTownSelect: (store, data) => {
+        store.commit(TYPES.TOGGLE_TOWN_SELECT, data);
+    },
+    toggleCountrySelect: (store, data) => {
+        store.commit(TYPES.TOGGLE_TOWN_COUNTRY, data);
+    },
+    toggleSearchOption: (store, data) => {
+        store.commit(TYPES.TOGGLE_SEARCH_OPTION, data);
+    },
 };
 
 export default actions;

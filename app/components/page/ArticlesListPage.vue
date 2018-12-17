@@ -9,7 +9,8 @@
                        id="articleSearchBar"
                        hint="Rechercher ..."
                        class="m-b-5"
-                       height="auto" :text="searchPhrase"
+                       height="auto"
+                       v-model="searchPhrase"
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ !isDataEmpty ? data.length : 0 }} résultat(s) sur {{ totalData }} </Label>
@@ -81,10 +82,10 @@
                 searchPhrase: '',
                 viewMode: 'grid',
                 data: [/*1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18*/],
-                filters: {
+                /*filters: {
                     towns: [],
                     country: ''
-                },
+                },*/
                 page: 1,
                 maxPages: 1,
                 totalData: 0,
@@ -102,17 +103,26 @@
             }
         },
         computed: {
-            ...Vuex.mapGetters(['getNetWorkStatus']),
+            ...Vuex.mapGetters(['getNetWorkStatus', 'getSearchFilters']),
             isTablet: function () {
                 return platform.device.deviceType.toLowerCase() === 'tablet';
             },
             isDataEmpty: function () {
                 return this.data.length === 0 || this.data[0]._id === 'empty'
+            },
+            filters: function () {
+                return {
+                    towns: this.getSearchFilters.selectedTowns || [],
+                    country: this.getSearchFilters.selectedCountry || []
+                }
             }
         },
         methods: {
+            ...Vuex.mapActions(['fetchedSearchFilters']),
             onSubmit: function() {
-                alert('OK')
+                this.data = [];
+                this.page = 1;
+                this.fetchData({}).then(res => {})
             },
             onSearchBoxLoaded: function (args) {
                 const page = args.object;
@@ -150,11 +160,10 @@
                     fullscreen: true,
                     animated: true,
                     props: {
-                        oldTowns:  this.filters.towns,
-                        country:  this.filters.country
                     }
                 }).then(res => {
-                    this.filters.towns = [];
+                    this.fetchData({}).then(res => { }).catch(err => {});
+                    /*this.filters.towns = [];
                     this.filters.country = '';
                     res.selectedTowns && res.selectedTowns.map(t => {
                         this.filters.towns.push(t._id);
@@ -164,7 +173,7 @@
                         this.page = 1;
                         this.data = [];
                         this.fetchData({}).then(res => { }).catch(err => {});
-                    }
+                    }*/
                 })
             },
             showDetails: function ({ object, item, view }) {
@@ -221,6 +230,7 @@
             onNavigatedTo: function ({isBackNavigation}) {
                 if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
+                this.fetchFilters();
             },
             fetchData: function (params) {
                 this.loading = !params.loadingMore && !params.refresh;
@@ -228,13 +238,15 @@
                 let dateSort = this.sorts.date.asc ? 1 : -1;
                 let priceSort = this.sorts.price.asc ? 1 : -1;
                 let regionFilter = this.filters.towns.join(',');
+                let search = this.searchPhrase.trim();
 
                 return API.fetchArticles({
                     page,
                     // limit: 5,
                     dateSort: dateSort,
                     priceSort: priceSort,
-                    region: regionFilter
+                    region: regionFilter,
+                    search: search
                 }).then(res => {
                     const docs = res.data.docs || [];
                     this.maxPages = res.data.pages;
@@ -249,7 +261,7 @@
                     if (docs.length && this.page <= this.maxPages)
                         this.page ++;
 
-                    if (this.data.length === 0) {
+                    if (docs.length === 0) {
                         this.data.push({ _id: 'empty' });
                     }
                     // this.refreshList();
@@ -259,6 +271,19 @@
                     this.loading = false;
                     return Promise.reject(false)
                 });
+            },
+            fetchFilters: function () {
+                API.fetchConfigFilters().then(res => {
+                    const data = res.data;
+                    const countries = [];
+                    const towns = data.towns;
+
+                    data.countries.map(c => {
+                        countries.push(c.name);
+                    });
+
+                    this.fetchedSearchFilters({ countries, towns });
+                })
             }
         },
         components: {
@@ -312,5 +337,10 @@
 
     .first-article {
         margin-top: 15;
+    }
+    SearchBar {
+        border-width: 1 1 1 1;
+        border-color: #ffffff;
+        border-radius: 15;
     }
 </style>

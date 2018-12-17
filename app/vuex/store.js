@@ -11,7 +11,17 @@ const state = {
     currentChatUser: null,
     currentConversationId: null,
     chatUsers: [],
-    typers: []
+    typers: [],
+    searchFilters: {
+        towns: [],
+        countries: [],
+        selectedTowns: [],
+        selectedCountry: 'Cameroon',
+        options: {
+            exchange: true,
+            fixedPrice: true
+        }
+    }
 };
 
 const actions = require('./actions');
