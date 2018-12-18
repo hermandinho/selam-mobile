@@ -30,7 +30,7 @@
                             class="preview-image"
                             :class="i === activeImageIndex ? 'active': ''"
                             :col="i" row="0"
-                            :key="img + '' + i"
+                            :key="getRandomKey()"
                             v-for="(img, i) in getArticle.pictures"/>
                     </GridLayout>
                 </ScrollView>
@@ -141,14 +141,9 @@
             ...Vuex.mapActions(['setCurrentConversationId']),
             onNavigatedTo: function () {
                 this.fetchData();
-                //this.setupImageViewer();
             },
-            setupImageViewer: function () {
-                if (!this.getArticle || !this.getArticle.pictures.length) return;
-                let photoViewer = new PhotoViewer();
-                photoViewer.paletteType = "LIGHT_MUTED"; // Android only
-                photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
-                this.photoViewerInstance = photoViewer;
+            getRandomKey: function () {
+                return [...Array(21)].map(() => Math.random().toString(36)[3]).join('')
             },
             showGallery: function() {
                 if (!this.getArticle || !this.getArticle.pictures.length) return;
@@ -157,10 +152,6 @@
                 photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
                 photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
                 //photoViewer.showViewer(this.getArticle.pictures);
-                /*if (this.photoViewerInstance) {
-                    this.photoViewerInstance.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
-                    this.photoViewerInstance.showViewer(this.getArticle.pictures);
-                }*/
             },
             fetchData: function () {
                 this.loading = true;

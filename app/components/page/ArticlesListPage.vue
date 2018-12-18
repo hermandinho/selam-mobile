@@ -14,11 +14,11 @@
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ !isDataEmpty ? data.length : 0 }} résultat(s) sur {{ totalData }} </Label>
-                <Ripple col="1" row="0" >
-                    <Image src="res://ic_marker" class="filter"stretch="aspectFit" width="30" @tap="showLocationFilterModal"/>
+                <Ripple col="1" row="0" @tap="showLocationFilterModal">
+                    <Image src="res://ic_marker" class="filter"stretch="aspectFit" width="30" />
                 </Ripple>
-                <Ripple col="2" row="0">
-                    <Image src="res://ic_filter" class="filter" stretch="aspectFit" width="30" @tap="showFilters"/>
+                <Ripple col="2" row="0" @tap="showFilters">
+                    <Image src="res://ic_filter" class="filter" stretch="aspectFit" width="30"/>
                 </Ripple>
                 <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
@@ -34,6 +34,7 @@
                     :gridSpanCount="isDataEmpty ? 1 : (isTablet ? 3 : 1)"
                     :selectionBehavior="'None'"
                     pullToRefresh="true"
+                    itemInsertAnimation="Fade"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
                     @itemTap="showDetails"
                     :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
