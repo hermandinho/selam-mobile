@@ -17,6 +17,7 @@
     "nativescript-gradient": "2.0.1",
     "nativescript-image-cache-it": "4.1.0",
     "nativescript-imagepicker": "6.0.5",
+    "nativescript-local-notifications": "3.1.0",
     "nativescript-localstorage": "2.0.0",
     "nativescript-phone": "1.4.0",
     "nativescript-photoviewer": "^1.4.0",

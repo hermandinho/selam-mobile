@@ -80,6 +80,7 @@
     import LocationFilterModal from '../modals/LocationFilterModal'
     import Details from './ArticleDetailPage';
     import API from '../../api'
+    import LIBS from '../../libs'
 
     export default {
         name: "articles-list-page",
@@ -233,6 +234,7 @@
                 });
             },
             onNavigatedTo: function ({isBackNavigation}) {
+                LIBS.createAddBanner();
                 if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
                 this.fetchFilters();

@@ -1,8 +1,8 @@
 <template>
     <Page>
         <ActionBar class="action-bar" title="Profil">
-            <ActionItem ios.systemIcon="9" ios.position="left"
-                        android.systemIcon="ic_menu_close_clear_cancel" android.position="actionBar"/>
+            <!--<ActionItem ios.systemIcon="9" ios.position="left"
+                        android.systemIcon="ic_menu_close_clear_cancel" android.position="actionBar"/>-->
         </ActionBar>
 
         <ScrollView orientation="vertical">

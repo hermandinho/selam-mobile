@@ -21,7 +21,7 @@ const state = {
             exchange: false,
             fixedPrice: false
         }
-    }
+    },
 };
 
 const actions = require('./actions');

@@ -39,7 +39,8 @@
                              @itemTap="openChat">
                     <v-template name="full" if="item._id !== 'empty'">
                         <FlexboxLayout :key="index" :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
-                            <Image :src="getOtherUser(item) && getOtherUser(item).picture || 'res://ic_no_image'" stretch="aspectFit" class="img-rounded img-thumbnail" width="50"/>
+                            <!--<Image width="50" borderRadius="100" horizontalAlignment="center" :src="getOtherUser(item) && getOtherUser(item).picture || 'res://ic_no_image'" stretch="aspectFit" class="img-rounded"/>-->
+                            <Image width="50" borderRadius="100" horizontalAlignment="center" :src="'res://ic_no_image'" stretch="aspectFit" class="img-rounded"/>
                             <FlexboxLayout flexDirection="column">
                                 <FlexboxLayout flexDirection="row" justifyContent="space-between">
                                     <Label class="p-10 user-name" marginTop="2">{{ getOtherUser(item) && getOtherUser(item).name || 'N/A' }}</Label>
@@ -51,7 +52,7 @@
                                     </Label>
                                 </FlexboxLayout>
                                 <Label class="p-10 message-preview"
-                                       :textWrap="false" width="92%" opacity="0.6">{{ item.lastMessage && item.lastMessage.content || '' }}</Label>
+                                       :textWrap="false" width="92%" opacity="0.5" fontWeight="normal">{{ item.lastMessage && item.lastMessage.content || '' }}</Label>
                             </FlexboxLayout>
                         </FlexboxLayout>
                     </v-template>
@@ -263,5 +264,14 @@
         font-weight: bold;
         font-size: 25;
         opacity: .3;
+    }
+
+    .img-rounded {
+       /* margin: 15px 0 0 15px;
+        border-radius: 30;
+        border-color: gray;
+        border-width: 0.5;
+        height:20;
+        width:60;*/
     }
 </style>
