@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    xmlns:android="http://schemas.android.com/apk/res/android" package="__PACKAGE__" android:versionCode="10000" android:versionName="1.0">
+    xmlns:android="http://schemas.android.com/apk/res/android" package="__PACKAGE__" android:versionCode="1001" android:versionName="1.0.1">
     <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" />
     <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="__APILEVEL__" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -8,8 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <application android:name="com.tns.NativeScriptApplication" android:allowBackup="true" android:icon="@drawable/icon" android:label="@string/app_name" android:theme="@style/AppTheme" android:windowSoftInputMode="stateVisible|adjustResize">
-        <!-- this line needs to be added (replace the value!) -->
+    <application android:name="com.tns.NativeScriptApplication" android:allowBackup="true" android:icon="@drawable/icon" android:label="@string/app_name" android:theme="@style/AppTheme" android:windowSoftInputMode="stateVisible|adjustResize" android:hardwareAccelerated="false">
         <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-4088662990526474~7747821875" />
         <activity android:name="com.tns.NativeScriptActivity" android:label="@string/title_activity_kimera" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@style/LaunchScreenTheme">
             <meta-data android:name="SET_THEME_ON_LAUNCH" android:resource="@style/AppTheme" />

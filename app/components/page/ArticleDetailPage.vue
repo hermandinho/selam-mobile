@@ -103,6 +103,7 @@
     import Vuex from 'vuex';
     const phoneManager = require("nativescript-phone");
     const PhotoViewer = require("nativescript-photoviewer");
+    import LIBS from '../../libs'
 
     import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
@@ -141,6 +142,10 @@
             ...Vuex.mapActions(['setCurrentConversationId']),
             onNavigatedTo: function () {
                 this.fetchData();
+                const rand = Boolean(Math.round(Math.random()));
+                if (rand) {
+                    LIBS.createInterstitialAdd();
+                }
             },
             getRandomKey: function () {
                 return [...Array(21)].map(() => Math.random().toString(36)[3]).join('')

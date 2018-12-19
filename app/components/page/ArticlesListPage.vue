@@ -324,7 +324,8 @@
         background-color: #ff4081;
         horizontal-align: right;
         vertical-align: bottom;
-        margin-top: 9%;
+        margin-bottom: 7%;
+        z-index: 10000;
     }
     .no_network {
         color: #000;
