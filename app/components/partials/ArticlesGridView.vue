@@ -7,7 +7,7 @@
         class="m-b-10"
     >
         <ImageCacheIt
-                :stretch="'aspectFill'"
+                :stretch="'fill'"
                 resize="1024,1024"
                 placeHolder="res://ic_no_image"
                 errorHolder="res://ic_no_image"
