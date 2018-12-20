@@ -12,3 +12,21 @@ SearchBar {
   border-width: 1;
   border-radius: 25;
 }
+
+Label {
+  color: #000000;
+}
+
+Label.title {
+  color: #ec4980;
+  font-weight: bold;
+}
+
+.action-bar-title, ActionBar ActionItem {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.white-label {
+  color: #ffffff;
+}

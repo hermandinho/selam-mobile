@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "api-7753298576319796325-850119",
+  "private_key_id": "f550f4d5762934426b1a68fc925521178fba53eb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDCztXZvD/dNPpb\nNFKHLaLJR8FPufgKOsWBH+Ve1R0Rmy6W+H+wExx4DnnJnStekGLtVoLuEEDdmVDE\n75RAkvX2uA1p6REfRgzosIKLl6yZMS/Bw+XYb1rMcB5banbPQMJHmoneSkSrdKAG\nZsbSZDRJiJGVYPg4iu9OsWCQCuOwkJuvynRNFL2bJWkIdmTLYvZ/WuiyK4ftUBdq\n1zWBVuTob3HDlvNAWTE+MSCXNnWuq1M9cdvyXOs3PuoAIY79rrcG9OB1TkRD4Wbf\nWKkrE86jSA02Sw4iCCOE4FM1t2a60NKUCoiljqvwlXhZiB36Sy9Lr7MtfO92CRss\n20Eic4WNAgMBAAECggEAJqbp1OYOSNpwWyTGRCZ4oFWxpBs6vPLcyao1tSt1NU9U\nPuWm1h1wnlyG6wsZdg2RZ1RtLYWBjUZUeYKsqGRQU6fAl5VEDa+1M30EJeTN/OY+\nusQe6GLtwdb0GwDEeoo3kgP2W2nidp9w+dwuEkQKANYNRrWDApsEcNluVp4mf5tU\nxm7Gkr/ri/gezif07CKcqwcm/Zm8sZFSMXCcCtX1bjK2Bcs6P/3aS060PvK5vHfv\nVQEwqduGqfKZ1qzKpB6NTv0PpSXzUEc1NjjMNpDSqxzGdla+DEku8aRsIcf/Y0HO\nUxajIRXQstguNYduXP6w/j7bDxP1CxamMvhPbKGnOQKBgQDviebmOlfxynB07CUX\nf/esvZGy7lAzmJey9sZTeDqtUhGmXbaoYN59WvbeEKewG0xANc1wdaAFnq2MfFt5\nu340f8+w0Inv2aVIYfT7DYGgSUvA6FeW9clv6qsmMAxmXRK6qxvH0LS2irWfu6hd\nNyr27wdVsQ6ppvzba6ltwVE+eQKBgQDQMgFmo4xVsXCjSdgsepWf8hKkwzKaTIAh\nbCuW2Ho5XbGGio3B1ah/8HUhB4pIyw8Hg5Bngmx+P1+0AX6uNivlBKeoHdAbxRY3\nVi/KVw62xETdQq5Plfs38cUepXaH/hPmNg8IBsjdRdhsRx5qRaWw53TrxKJIzOSp\nca1WKzaqtQKBgCsG3k7kk/9+mYynDlKWTerdclptrEJYWodvBFjh88hGQZ1cn/7G\nx7BEsqtY2oYroRq3j1twBXp88jeV7uiC4TyU6L2d9+j5c1L5JYQi/PHJuK3CDlmz\ndKeBw5RsdQ2+EistqSPPPWa8q7sxfiCgVDte3DZsQ3H96NWRFTH905YhAoGAIgKp\nO+0ntbAA6IvdppZ37uMKrKO+lno8zDjxffjrLofhwkrMEYgnuI69c6HZsz6Iu/+A\nDYi+1Hjh13QPD8KFtSnngY0tO/wcPvnzYKiMHMs/PK3x78peeasjOnhpPpoBAjB+\nkB8bnRoV2spba5zpDlchQIqkwCPIju2lFViF26kCgYBBbDq33EZrYDn9SQv+0O8I\nxGPZiS9LBgnEwDu65tDQs0hHZA0goPu0B3rBwR+V4lo4i+gh8i/PGvUK/dmaHDVR\njpDEH1f4woEF1UNoPnB0Fbaos7XnNKd+aoMsxZCNzc7rFTfsF1Ge4B5dKJ8Qu7cu\nMk8vlg2qwZ2cYQ5al+DbCw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "selam-mobile-service-account@api-7753298576319796325-850119.iam.gserviceaccount.com",
+  "client_id": "106647398952430579806",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/selam-mobile-service-account%40api-7753298576319796325-850119.iam.gserviceaccount.com"
+}

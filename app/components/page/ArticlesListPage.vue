@@ -11,11 +11,16 @@
                        class="m-b-5"
                        height="auto"
                        v-model="searchPhrase"
+                       @clear="searchPhrase = ''; onSubmit"
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ !isDataEmpty ? data.length : 0 }} résultat(s) sur {{ totalData }} </Label>
-                <Image src="res://ic_marker" class="filter" col="1" row="0" stretch="aspectFit" width="30" @tap="showLocationFilterModal"/>
-                <Image src="res://ic_filter" class="filter" col="2" row="0" stretch="aspectFit" width="30" @tap="showFilters"/>
+                <Ripple col="1" row="0" @tap="showLocationFilterModal">
+                    <Image src="res://ic_marker" class="filter"stretch="aspectFit" width="30" />
+                </Ripple>
+                <Ripple col="2" row="0" @tap="showFilters">
+                    <Image src="res://ic_filter" class="filter" stretch="aspectFit" width="30"/>
+                </Ripple>
                 <!--<Image v-if="false" @tap="refreshList()" class="grid filter" col="2" row="0" :src="viewMode === 'grid' ? 'res://filter_grid_primary' : 'res://filter_grid_black'" ></Image>
                 <Image v-if="false" @tap="refreshList()" class="grid filter" col="3" row="0" :src="viewMode === 'list' ? 'res://filter_list_primary' : 'res://filter_list_black'" ></Image>-->
             </GridLayout>
@@ -30,6 +35,7 @@
                     :gridSpanCount="isDataEmpty ? 1 : (isTablet ? 3 : 1)"
                     :selectionBehavior="'None'"
                     pullToRefresh="true"
+                    itemInsertAnimation="Fade"
                     @pullToRefreshInitiated="onPullToRefreshInitiated"
                     @itemTap="showDetails"
                     :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
@@ -61,6 +67,7 @@
         <FlexboxLayout v-else flexDirection="column" justifyContent="center" height="100%" width="100%">
             <Image stretch="aspectFit" src="res://ic_no_network" class="m-t-15" width="150" height="150" opacity="0.6" horizontalAllignment="center"/>
             <Label class="no_network" text="Vérifiez votre connection Internet." horizontalAllignment="center" alignSelf="center"/>
+            <Button text="Réessayer" @tap="fetchData({})" />
         </FlexboxLayout>
     </Page>
 </template>
@@ -74,6 +81,7 @@
     import LocationFilterModal from '../modals/LocationFilterModal'
     import Details from './ArticleDetailPage';
     import API from '../../api'
+    import LIBS from '../../libs'
 
     export default {
         name: "articles-list-page",
@@ -162,18 +170,19 @@
                     props: {
                     }
                 }).then(res => {
+                    if (!res) {
+                        return;
+                    }
                     this.fetchData({}).then(res => { }).catch(err => {});
-                    /*this.filters.towns = [];
+                    this.filters.towns = [];
                     this.filters.country = '';
-                    res.selectedTowns && res.selectedTowns.map(t => {
+                    this.getSearchFilters.selectedTowns.map(t => {
                         this.filters.towns.push(t._id);
                     });
                     this.filters.country = res.selectedCountry || '';
-                    if (this.filters.towns.length) {
-                        this.page = 1;
-                        this.data = [];
-                        this.fetchData({}).then(res => { }).catch(err => {});
-                    }*/
+                    this.page = 1;
+                    this.data = [];
+                    this.fetchData({}).then(res => { }).catch(err => {});
                 })
             },
             showDetails: function ({ object, item, view }) {
@@ -211,11 +220,9 @@
                             break;
                     }
                 } ).then(res => {
-                    if (res !== undefined) {
-                        this.page = 1;
-                        this.data = [];
-                        this.fetchData({})
-                    }
+                    this.page = 1;
+                    this.data = [];
+                    this.fetchData({})
                 })
             },
             loadMore: function ({ object }) {
@@ -228,6 +235,7 @@
                 });
             },
             onNavigatedTo: function ({isBackNavigation}) {
+                LIBS.createAddBanner();
                 if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
                 this.fetchFilters();
@@ -237,16 +245,23 @@
                 let page = params.page || this.page;
                 let dateSort = this.sorts.date.asc ? 1 : -1;
                 let priceSort = this.sorts.price.asc ? 1 : -1;
-                let regionFilter = this.filters.towns.join(',');
-                let search = this.searchPhrase.trim();
-
+                let priceFixed = null;
+                let exchange = null;
+                if (this.getSearchFilters) {
+                    priceFixed = this.getSearchFilters.options.fixedPrice;
+                    exchange = this.getSearchFilters.options.exchange;
+                }
+                let regionFilter = this.filters && this.filters.towns && this.filters.towns.join(',') || null;
+                let search = this.searchPhrase && this.searchPhrase.trim() || '';
                 return API.fetchArticles({
                     page,
                     // limit: 5,
                     dateSort: dateSort,
                     priceSort: priceSort,
                     region: regionFilter,
-                    search: search
+                    search: search,
+                    priceFixed: priceFixed,
+                    exchange: exchange,
                 }).then(res => {
                     const docs = res.data.docs || [];
                     this.maxPages = res.data.pages;
@@ -269,6 +284,7 @@
                     return Promise.resolve(true);
                 }).catch(err => {
                     this.loading = false;
+                    console.log(err);
                     return Promise.reject(false)
                 });
             },
@@ -313,7 +329,8 @@
         background-color: #ff4081;
         horizontal-align: right;
         vertical-align: bottom;
-        margin-top: 9%;
+        margin-bottom: 7%;
+        z-index: 10000;
     }
     .no_network {
         color: #000;
@@ -325,7 +342,7 @@
     }
     .empty-list-text {
         color: #000;
-        font-weight: bolder;
+        font-weight: bold;
         font-size: 25;
         opacity: .2;
     }

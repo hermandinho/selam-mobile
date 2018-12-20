@@ -59,6 +59,10 @@ let fetchArticles = (params) => {
         q += '&priceSort=' + params.priceSort;
     if (params.region && params.region.length)
         q += '&region=' + params.region;
+    if (params.priceFixed && params.priceFixed)
+        q += '&priceFixed=' + params.priceFixed;
+    if (params.exchange && params.exchange)
+        q += '&exchange=' + params.exchange;
     if (params.search && params.search.trim().length)
         q += '&search=' + params.search;
 

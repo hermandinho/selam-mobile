@@ -16,7 +16,7 @@
                 <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
 
-                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
+                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" tap="showGallery"
                        width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFill' : 'aspectFit'"
                        height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
 
@@ -24,12 +24,13 @@
                     <GridLayout rows="auto" columns="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto">
                         <Image
                             @tap="activeImageIndex = i"
-                            :src="getArticle.pictures[i] || 'res://ic_no_image'"
+                            :src="img || 'res://ic_no_image'"
                             stretch="aspectFill"
                             width="65" height="65"
                             class="preview-image"
                             :class="i === activeImageIndex ? 'active': ''"
                             :col="i" row="0"
+                            :key="getRandomKey()"
                             v-for="(img, i) in getArticle.pictures"/>
                     </GridLayout>
                 </ScrollView>
@@ -68,7 +69,7 @@
                     </FormattedString>
                 </Label>
 
-                <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options"/>
+                <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options title"/>
                 <GridLayout columns="auto,auto" rows="auto,auto" row="9" colSpan="2" col="0" width="100%">
                     <Label text="Prix négociable" class=" option-label" row="0" col="0" width="50%"/>
                     <Label :text="getArticle.price.fixed ? 'Non' : 'Oui'" row="0" col="1"  width="50%" class="option-value"/>
@@ -78,10 +79,18 @@
                 </GridLayout>
 
                 <FlexboxLayout v-if="!isMyArticle" justifyContent="space-around" alignItems="center" flexDirection="columns" row="10" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
-                    <Image v-if="getArticle.user && getArticle.user.acceptEmails"src="res://ic_email" stretch="aspectFill" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptChats" @tap="goToChat(getArticle.user)" src="res://ic_speech_bubble" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptPhone && getArticle.user.phoneNumber" @tap="dialPhoneNumber(getArticle.user.phoneNumber)" src="res://ic_phone_contact" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
-                    <Image v-if="getArticle.user && getArticle.user.acceptSMS && getArticle.user.phoneNumber" @tap="sendSMS(getArticle.user.phoneNumber)" src="res://ic_sms" stretch="aspectFit" width="70" height="70" class="contact-icon" alignSelf="center"/>
+                    <Ripple borderRadius="20">
+                        <Image v-if="getArticle.user && getArticle.user.acceptEmails"src="res://ic_email" stretch="aspectFill" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="goToChat(getArticle.user)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptChats" src="res://ic_speech_bubble" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="dialPhoneNumber(getArticle.user.phoneNumber)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptPhone && getArticle.user.phoneNumber" src="res://ic_phone_contact" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
+                    <Ripple borderRadius="20" @tap="sendSMS(getArticle.user.phoneNumber)">
+                        <Image v-if="getArticle.user && getArticle.user.acceptSMS && getArticle.user.phoneNumber" src="res://ic_sms" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
+                    </Ripple>
                 </FlexboxLayout>
 
             </GridLayout>
@@ -94,9 +103,12 @@
     import Vuex from 'vuex';
     const phoneManager = require("nativescript-phone");
     const PhotoViewer = require("nativescript-photoviewer");
+    import LIBS from '../../libs'
 
     import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
+
+    var photoViewer;
     export default {
         props: {
             article: {
@@ -132,26 +144,24 @@
             ...Vuex.mapActions(['setCurrentConversationId']),
             onNavigatedTo: function () {
                 this.fetchData();
-                //this.setupImageViewer();
+                const rand = Boolean(Math.round(Math.random()));
+                if (rand) {
+                    LIBS.createInterstitialAdd();
+                }
             },
-            setupImageViewer: function () {
-                if (!this.getArticle || !this.getArticle.pictures.length) return;
-                let photoViewer = new PhotoViewer();
-                photoViewer.paletteType = "LIGHT_MUTED"; // Android only
-                photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
-                this.photoViewerInstance = photoViewer;
+            getRandomKey: function () {
+                return [...Array(10)].map(() => Math.random().toString(36)[3]).join('')
             },
             showGallery: function() {
+                return;
                 if (!this.getArticle || !this.getArticle.pictures.length) return;
-                let photoViewer = new PhotoViewer();
+                if (!photoViewer) {
+                    photoViewer = new PhotoViewer();
+                }
                 photoViewer.paletteType = "LIGHT_MUTED"; // Android only
                 photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
                 photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
-                photoViewer.showViewer(this.getArticle.pictures);
-                /*if (this.photoViewerInstance) {
-                    this.photoViewerInstance.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
-                    this.photoViewerInstance.showViewer(this.getArticle.pictures);
-                }*/
+                //photoViewer.showViewer(this.getArticle.pictures);
             },
             fetchData: function () {
                 this.loading = true;
@@ -220,8 +230,6 @@
 
     .label {
         font-size: 15;
-        font-weight: bold;
-        color: #000;
     }
 
     .title {

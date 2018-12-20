@@ -18,10 +18,10 @@ const state = {
         selectedTowns: [],
         selectedCountry: 'Cameroon',
         options: {
-            exchange: true,
-            fixedPrice: true
+            exchange: false,
+            fixedPrice: false
         }
-    }
+    },
 };
 
 const actions = require('./actions');
