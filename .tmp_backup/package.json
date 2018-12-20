@@ -1,0 +1,47 @@
+{
+  "nativescript": {
+    "id": "com.selam.mobile",
+    "tns-android": {
+      "version": "5.0.0"
+    }
+  },
+  "description": "Application pour petites annonces",
+  "license": "SEE LICENSE IN <your-license-filename>",
+  "repository": "<fill-your-repository-here>",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "moment": "^2.23.0",
+    "nativescript-admob": "3.2.0",
+    "nativescript-background-http": "3.3.1",
+    "nativescript-floatingactionbutton": "5.0.0",
+    "nativescript-gradient": "2.0.1",
+    "nativescript-image-cache-it": "4.1.0",
+    "nativescript-imagepicker": "6.0.5",
+    "nativescript-local-notifications": "3.1.0",
+    "nativescript-localstorage": "2.0.0",
+    "nativescript-phone": "1.4.0",
+    "nativescript-photoviewer": "^1.4.0",
+    "nativescript-pusher": "1.0.1",
+    "nativescript-ripple": "2.1.0",
+    "nativescript-theme-core": "~1.0.4",
+    "nativescript-toast": "1.4.6",
+    "nativescript-ui-listview": "5.0.0",
+    "nativescript-vue": "~2.0.0",
+    "tns-core-modules": "~5.0.2",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "~7.1.0",
+    "@babel/preset-env": "~7.1.0",
+    "@vue/devtools": "^4.1.5",
+    "babel-loader": "~8.0.0",
+    "nativescript-dev-webpack": "0.18.1",
+    "nativescript-vue-devtools": "1.1.0",
+    "nativescript-vue-template-compiler": "~2.0.0",
+    "node-sass": "~4.9.0",
+    "vue-loader": "~15.4.0"
+  },
+  "readme": "NativeScript Application",
+  "name": "selam-mobile",
+  "author": "Herman Demsong"
+}

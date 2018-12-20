@@ -359,7 +359,6 @@
         horizontal-align: center;
         vertical-align: center;
         font-size: 14;
-        font-weight: bold;
     }
     .margin-bottom {
         margin-bottom: 15;

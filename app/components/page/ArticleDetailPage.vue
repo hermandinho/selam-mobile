@@ -16,7 +16,7 @@
                 <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
 
-                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
+                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" tap="showGallery"
                        width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFill' : 'aspectFit'"
                        height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
 
@@ -69,7 +69,7 @@
                     </FormattedString>
                 </Label>
 
-                <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options"/>
+                <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options title"/>
                 <GridLayout columns="auto,auto" rows="auto,auto" row="9" colSpan="2" col="0" width="100%">
                     <Label text="Prix négociable" class=" option-label" row="0" col="0" width="50%"/>
                     <Label :text="getArticle.price.fixed ? 'Non' : 'Oui'" row="0" col="1"  width="50%" class="option-value"/>
@@ -107,6 +107,8 @@
 
     import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
+
+    var photoViewer;
     export default {
         props: {
             article: {
@@ -148,11 +150,14 @@
                 }
             },
             getRandomKey: function () {
-                return [...Array(21)].map(() => Math.random().toString(36)[3]).join('')
+                return [...Array(10)].map(() => Math.random().toString(36)[3]).join('')
             },
             showGallery: function() {
+                return;
                 if (!this.getArticle || !this.getArticle.pictures.length) return;
-                let photoViewer = new PhotoViewer();
+                if (!photoViewer) {
+                    photoViewer = new PhotoViewer();
+                }
                 photoViewer.paletteType = "LIGHT_MUTED"; // Android only
                 photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
                 photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
@@ -225,8 +230,6 @@
 
     .label {
         font-size: 15;
-        font-weight: bold;
-        color: #000;
     }
 
     .title {

@@ -11,6 +11,7 @@
                        class="m-b-5"
                        height="auto"
                        v-model="searchPhrase"
+                       @clear="searchPhrase = ''; onSubmit"
                        @submit="onSubmit" />
             <GridLayout columns="*,auto,auto,auto" rows="auto" height="auto" row="1" class="m-b-5">
                 <Label class="results-count" col="0" row="0">{{ !isDataEmpty ? data.length : 0 }} résultat(s) sur {{ totalData }} </Label>

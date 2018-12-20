@@ -7,6 +7,10 @@
         class="m-b-10"
     >
         <ImageCacheIt
+                class="p-0"
+                width="auto"
+                height="auto"
+                centerCrop="false"
                 :stretch="'fill'"
                 resize="1024,1024"
                 placeHolder="res://ic_no_image"

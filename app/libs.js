@@ -1,6 +1,6 @@
 import { AD_SIZE, createBanner, hideBanner, preloadInterstitial, showInterstitial, createInterstitial } from "nativescript-admob";
 import { LocalNotifications } from "nativescript-local-notifications";
-
+const testing = false;
 LocalNotifications.addOnMessageReceivedCallback(notificationData => {
     console.log("Notification received: " + JSON.stringify(notificationData));
 });
@@ -32,12 +32,12 @@ let sentLocalNotification = (data) => {
 
 let createInterstitialAdd = () => {
     createInterstitial({
-        testing: false,
+        testing: testing,
         //iosInterstitialId: "ca-app-pub-XXXXXX/YYYYY2", // add your own
         androidInterstitialId: "ca-app-pub-4088662990526474/5815485613", // add your own
         // Android automatically adds the connected device as test device with testing:true, iOS does not
         // iosTestDeviceIds: ["ce97330130c9047ce0d4430d37d713b2"],
-        keywords: ["football", "phones", "cars", "house", "fashion", "computer", "technology"], // add keywords for ad targeting
+        keywords: [], // add keywords for ad targeting
         onAdClosed: function () { console.log("interstitial closed") }
     }).then((res) => {
             console.log("InterstitialAdd created " , res);
@@ -48,7 +48,7 @@ let createInterstitialAdd = () => {
 };
 
 let createAddBanner = () => {
-    const testing = false;
+
     createBanner({
         // if this 'view' property is not set, the banner is overlayed on the current top most view
         // view: ..,
@@ -65,7 +65,7 @@ let createAddBanner = () => {
             //bottom: isIOS ? 50 : 0
             bottom: 0
         },
-        keywords: ["football", "phones", "cars", "house", "fashion", "computer", "technology"]
+        keywords: []
     }).then((res) => console.log('Banner created ', res),
         error => console.log("Error creating banner: " , error)
     )
