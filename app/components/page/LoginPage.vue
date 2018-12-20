@@ -11,12 +11,17 @@
 
                 <StackLayout class="container">
                     <FlexboxLayout alignItems="center" class="border-bottom" v-if="!isLogin">
-                        <Image src="res://chat_white" width="20" height="20" class="icon-margin"/>
+                        <Image src="res://ic_user" width="20" height="20" class="icon-margin"/>
                         <TextField hint="Nom et prenom" v-model="user.name" class="form-input" autocorrect="false"/>
                     </FlexboxLayout>
 
+                    <FlexboxLayout alignItems="center" class="border-bottom" v-if="!isLogin">
+                        <Image src="res://ic_phone" width="20" height="20" class="icon-margin"/>
+                        <TextField hint="Numéro de tel." v-model="user.phoneNumber" class="form-input" autocorrect="false" keyboardType="phone"/>
+                    </FlexboxLayout>
+
                     <FlexboxLayout alignItems="center" class="border-bottom">
-                        <Image src="res://ic_user" width="30" height="30" class="icon-margin"/>
+                        <Image src="res://ic_mail" width="30" height="30" class="icon-margin"/>
                         <TextField keyboardType="email" hint="Email" v-model="user.email" class="form-input" autocorrect="false"/>
                     </FlexboxLayout>
 
@@ -35,13 +40,13 @@
                     <Button
                         v-show="processing"
                         :text="isLogin ? 'Connexion en cours ...' : 'Inscription en cours ...'"
-                        isEnabled="false"
+                        :isEnabled="false"
                         class="my-btn disabled"
                     />
 
                     <FlexboxLayout justifyContent="space-between" alignItems="center" class="links">
-                        <Label horizontalAllignment="left" @tap="isLogin = !isLogin" :text="!isLogin ? 'Connexion' :'Créer un compte'"/>
-                        <Label horizontalAllignment="right" text="Mot de passe oublié"/>
+                        <Label class="white-label" horizontalAllignment="left" @tap="isLogin = !isLogin" :text="!isLogin ? 'Connexion' :'Créer un compte'"/>
+                        <Label class="white-label" horizontalAllignment="right" text="Mot de passe oublié"/>
                     </FlexboxLayout>
                 </StackLayout>
 
@@ -67,6 +72,7 @@
                     email: 'test@dev.com',
                     password: 'test',
                     name: 'DEMO',
+                    phoneNumber: '',
                     uuid: platform.device.uuid,
                     os: platform.device.os,
                     version: platform.device.osVersion,
@@ -133,7 +139,8 @@
                     name: this.user.name,
                     os: this.user.os,
                     type: this.user.type,
-                    version: this.user.version
+                    version: this.user.version,
+                    phoneNumber: this.user.phoneNumber,
                 }).then(res => {
                     this.processing = false;
                     localStorage.setItem('token', res.data.token);

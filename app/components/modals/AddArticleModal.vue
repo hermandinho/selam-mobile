@@ -9,7 +9,7 @@
 
             <ScrollView orientation="vertical">
                 <GridLayout columns="*,2*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container p-5 m-10">
-                    <ActivityIndicator row="4" :busy="loading" rowSpan="3" colSpan="2" color="#ec4980" />
+                    <ActivityIndicator row="4" :busy="loading" rowSpan="1" colSpan="2" color="#ec4980" />
 
                     <Label class="margin-bottom label" text="Titre" row="0" col="0" />
                     <TextView col="1" row="0" hint="Titre" v-model="article.title" class="margin-bottom form-input" autocorrect="false"/>
@@ -83,7 +83,7 @@
                     title: 'Test',
                     description: 'La description de mon article.',
                     price: {
-                        amount: '0.0',
+                        amount: '1.0',
                         fixed: true
                     },
                     currency: 'CFA',
@@ -356,9 +356,11 @@
 
     .label {
         text-align: right;
-        horizontal-align: center;
-        vertical-align: center;
-        font-size: 14;
+        horizontal-align: right;
+        vertical-align: bottom;
+        font-size: 16;
+        font-weight: bold;
+        margin-right: 20;
     }
     .margin-bottom {
         margin-bottom: 15;
@@ -374,5 +376,8 @@
         margin-right: 1;
         margin-left: 1;
         margin-bottom: 1;
+    }
+    Switch {
+        margin-right: 10;
     }
 </style>

@@ -25,13 +25,18 @@
                     <Switch @checkedChange="handleSelectChange($event, 'acceptEmail')" checked="me.acceptEmail" row="5" col="1" color="#ec4980" class="option-switch" />
 
                     <Label row="6" col="0" class="option-label" text="Accepter les appels téléphoniques" width="50%"/>
-                    <Switch @checkedChange="handleSelectChange($event, 'acceptPhone')" :checked="me.acceptPhone" row="6" col="1" color="#ec4980" class="option-switch" />
+                    <Switch v-if="hasPhoneNumber" @checkedChange="handleSelectChange($event, 'acceptPhone')" :checked="me.acceptPhone" row="6" col="1" color="#ec4980" class="option-switch" />
+                    <Switch @tap="alertNoPhoneNumber" isEnabled="false" v-if="!hasPhoneNumber" :checked="false" row="6" col="1" class="option-switch" />
 
                     <Label row="7" col="0" class="option-label" text="Accepter les SMS" width="50%"/>
-                    <Switch @checkedChange="handleSelectChange($event, 'acceptSMS')" :checked="me.acceptSMS" row="7" col="1" color="#ec4980" class="option-switch" />
+                    <Switch v-if="hasPhoneNumber" @checkedChange="handleSelectChange($event, 'acceptSMS')" :checked="me.acceptSMS" row="7" col="1" color="#ec4980" class="option-switch" />
+                    <Switch @tap="alertNoPhoneNumber" isEnabled="false" v-if="!hasPhoneNumber" :checked="false" row="7" col="1" class="option-switch" />
 
                     <Label row="8" col="0" class="option-label" text="Accepter le chat" width="50%"/>
                     <Switch @checkedChange="handleSelectChange($event, 'acceptChats')" :checked="me.acceptChats" row="8" col="1" color="#ec4980" class="option-switch" />
+
+                    <Label row="9" col="0" class="option-label" text="Notification de nouveaux messages" width="50%"/>
+                    <Switch @checkedChange="handleSelectChange($event, 'notifyOnNewMessage')" :checked="me.notifyOnNewMessage" row="9" col="1" color="#ec4980" class="option-switch" />
 
                 </GridLayout>
 
@@ -65,6 +70,9 @@
                 if (!user) return;
                 this.refreshMe = !this.refreshMe;
                 return JSON.parse(user);
+            },
+            hasPhoneNumber: function () {
+                return this.me && this.me.phoneNumber;
             }
         },
         methods: {
@@ -108,6 +116,9 @@
                 }).catch(err => {
 
                 });
+            },
+            alertNoPhoneNumber: function () {
+                alert("Vous n'avez pas configurer votre numéro de téléphone.");
             }
         }
     }

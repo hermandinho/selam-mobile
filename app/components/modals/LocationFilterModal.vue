@@ -24,7 +24,7 @@
                             <FlexboxLayout flexDirection="columns" :key="item && item._id">
                                 <Label :text="item.name" class="p-10 option-label" flexGrow="5"/>
 
-                                <Switch v-model="preselectedTowns[item && item._id || null]" flexGrow="1" @checkedChange="handleSelectChange($event, item)"/>
+                                <Switch v-model="preselectedTowns[item && item._id || null]" flexGrow="1" @checkedChange="handleSelectChange($event, item)" color="#ec4980"/>
                             </FlexboxLayout>
                         </v-template>
                     </ListView>
@@ -35,7 +35,7 @@
                         <v-template>
                             <FlexboxLayout flexDirection="columns" :key="option.label">
                                 <Label :text="option.label" class="p-10 option-label" flexGrow="5"/>
-                                <Switch v-model="options[option.key]" flexGrow="1" @checkedChange="handleOptionSelectChange($event, option)"/>
+                                <Switch v-model="options[option.key]" flexGrow="1" @checkedChange="handleOptionSelectChange($event, option)" color="#ec4980"/>
                             </FlexboxLayout>
                         </v-template>
                     </ListView>

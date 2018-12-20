@@ -245,11 +245,14 @@
                 let page = params.page || this.page;
                 let dateSort = this.sorts.date.asc ? 1 : -1;
                 let priceSort = this.sorts.price.asc ? 1 : -1;
-                let priceFixed = this.getSearchFilters.options.fixedPrice;
-                let exchange = this.getSearchFilters.options.exchange;
-                let regionFilter = this.filters.towns.join(',');
-                let search = this.searchPhrase.trim();
-
+                let priceFixed = null;
+                let exchange = null;
+                if (this.getSearchFilters) {
+                    priceFixed = this.getSearchFilters.options.fixedPrice;
+                    exchange = this.getSearchFilters.options.exchange;
+                }
+                let regionFilter = this.filters && this.filters.towns && this.filters.towns.join(',') || null;
+                let search = this.searchPhrase && this.searchPhrase.trim() || '';
                 return API.fetchArticles({
                     page,
                     // limit: 5,
@@ -281,6 +284,7 @@
                     return Promise.resolve(true);
                 }).catch(err => {
                     this.loading = false;
+                    console.log(err);
                     return Promise.reject(false)
                 });
             },
