@@ -32,6 +32,7 @@
 
 <script>
     import * as app from 'tns-core-modules/application'
+    import { messaging, Message } from "nativescript-plugin-firebase/messaging";
     const connectivityModule = require("tns-core-modules/connectivity");
     import * as platform from 'tns-core-modules/platform';
     import {Pusher} from 'nativescript-pusher';
@@ -53,7 +54,8 @@
                 uuid: null,
                 pusherConnected: false,
                 tabViewLayout: null,
-                tabView: null
+                tabView: null,
+                tabHeight: 145
             }
         },
         computed: {
@@ -78,15 +80,16 @@
             handleOpenedChat: function () {
                 if (this.tabViewLayout) {
                     setTimeout(() => {
-                        console.log(this.tabViewLayout);
+                        this.tabHeight = this.tabViewLayout.getHeight();
                         this.tabViewLayout.getLayoutParams().height = 0;
+                        // this.tabViewLayout.getLayoutParams().visibility = 'hidden';
                         this.tabViewLayout.requestLayout();
                     },100)
                 }
             },
             handleClosedChat: function () {
                 if (this.tabViewLayout) {
-                    this.tabViewLayout.getLayoutParams().height = 145;
+                    this.tabViewLayout.getLayoutParams().height = this.tabHeight;
                     this.tabViewLayout.requestLayout();
                 }
             },
@@ -165,6 +168,28 @@
                     view.removeView(contentView.nativeView);
                     contentView.onUnloaded();
                 }
+            },
+            initFirebase: function () {
+                messaging.getCurrentPushToken().then(token => {
+                    console.log('This is my token ', token);
+                });
+                messaging.registerForPushNotifications({
+                    onPushTokenReceivedCallback: (token) => {
+                        console.log("Firebase plugin received a push token: " + token);
+                    },
+
+                    onMessageReceivedCallback: (message) => {
+                        console.log("Push message received: " + message.title);
+                    },
+
+                    // Whether you want this plugin to automatically display the notifications or just notify the callback. Currently used on iOS only. Default true.
+                    showNotifications: true,
+
+                    // Whether you want this plugin to always handle the notifications when the app is in foreground. Currently used on iOS only. Default false.
+                    showNotificationsWhenInForeground: true
+                }).then(() => console.log("Registered for push")).catch(err => {
+                    console.log("Cannot register for push ", err)
+                });
             },
             OnNavigatedTo: function ({object, isBackNavigation}) {
                 this.handlePusher();
