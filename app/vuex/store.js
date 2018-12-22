@@ -22,6 +22,8 @@ const state = {
             fixedPrice: false
         }
     },
+    categories: [],
+    subCategories: [],
 };
 
 const actions = require('./actions');

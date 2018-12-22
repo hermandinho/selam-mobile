@@ -62,7 +62,12 @@
             ...Vuex.mapGetters(['getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
             getToken: function () {
                 return localStorage.getItem('token');
-            }
+            },
+            me: function () {
+                const user = localStorage.getItem('user');
+                if (!user) return;
+                return JSON.parse(user);
+            },
         },
         methods: {
             ...Vuex.mapActions(['setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage', 'receivedTypingEvent']),
@@ -84,7 +89,7 @@
                         this.tabViewLayout.getLayoutParams().height = 0;
                         // this.tabViewLayout.getLayoutParams().visibility = 'hidden';
                         this.tabViewLayout.requestLayout();
-                    },100)
+                    })
                 }
             },
             handleClosedChat: function () {
@@ -171,15 +176,23 @@
             },
             initFirebase: function () {
                 messaging.getCurrentPushToken().then(token => {
-                    console.log('This is my token ', token);
+                    API.updatePushToken({
+                        pushToken: token,
+                        uuid: platform.device.uuid,
+                    }).then(res => {
+                        console.log(res.data);
+                    })
                 });
                 messaging.registerForPushNotifications({
                     onPushTokenReceivedCallback: (token) => {
-                        console.log("Firebase plugin received a push token: " + token);
+                        console.log("Firebase push token: " + token);
                     },
 
                     onMessageReceivedCallback: (message) => {
-                        console.log("Push message received: " + message.title);
+                        console.log("Push message received: " + JSON.stringify(message));
+                        if (message.title && message.body) {
+                            LIBS.sentLocalNotification(message);
+                        }
                     },
 
                     // Whether you want this plugin to automatically display the notifications or just notify the callback. Currently used on iOS only. Default true.
@@ -193,6 +206,7 @@
             },
             OnNavigatedTo: function ({object, isBackNavigation}) {
                 this.handlePusher();
+                this.initFirebase();
                 // const myConnectionType = connectivityModule.getConnectionType();
                 try {
                     connectivityModule.startMonitoring((newConnectionType) => {

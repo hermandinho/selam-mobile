@@ -9,28 +9,27 @@ LocalNotifications.addOnMessageReceivedCallback(notificationData => {
 });
 
 let sentLocalNotification = (data) => {
-
-    /*LocalNotifications.hasPermission().then(res => {
+    LocalNotifications.hasPermission().then(res => {
         LocalNotifications.schedule(
             [{
-                id: 3,
-                title: 'Hi',
-                subtitle: 'test',
+                id: data.from,
+                title: data.title,
+                // subtitle: 'test',
                 image: "res://icon",
-                thumbnail: false,
-                body: 'You should see a \'3\' somewhere',
-                at: new Date(new Date().getTime() + 10 * 1000),
-                badge: 3
+                thumbnail: true,
+                body: data.body,
+                at: new Date(new Date().getTime() + 10),
+                // badge: 3
             }])
             .then(() => {
-                alert({
+                /*alert({
                     title: "Notification scheduled",
                     message: 'ID: 3',
                     okButtonText: "OK, thanks"
-                });
+                });*/
             })
             .catch(error => console.log("doScheduleAndSetBadgeNumber error: " + error));
-    })*/
+    })
 };
 
 let createInterstitialAdd = () => {
@@ -81,7 +80,7 @@ let createAddBanner = () => {
                 bottom: 0
             },
             keywords: []
-        }).then((res) => console.log('Banner created ', res),
+        }).then((res) => console.log('Banner created '),
             error => console.log("Error creating banner: " , error)
         )
     },100);

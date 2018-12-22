@@ -43,6 +43,10 @@ let updateProfile = (id, params) => {
     return axios.patch(API_BASE_URL + '/user/' + id, params)
 };
 
+let updatePushToken = (params) => {
+    return axios.patch(API_BASE_URL + '/user/push-token/set', params)
+};
+
 let fetchConfigFilters = () => {
     return axios.get(API_BASE_URL + '/config/filters')
 };
@@ -106,6 +110,7 @@ export default{
     logout,
     register,
     updateProfile,
+    updatePushToken,
     fetchConfigFilters,
     createArticle,
     fetchArticles,

@@ -16,8 +16,8 @@
                 <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
                 <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
 
-                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" tap="showGallery"
-                       width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFill' : 'aspectFit'"
+                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
+                       width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFit' : 'aspectFit'"
                        height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
 
                 <ScrollView orientation="horizontal" col="0" row="2" colSpan="2" class="image-thumbnails">
@@ -108,7 +108,7 @@
     import ChatPageModal from '../modals/ChatPageModal'
     import API from '../../api'
 
-    var photoViewer;
+    let photoViewer;
     export default {
         props: {
             article: {
@@ -122,7 +122,6 @@
                 activeImageIndex: 0,
                 loading: false,
                 freshArticle: null,
-                photoViewerInstance: null
             }
         },
         components: {
@@ -161,7 +160,7 @@
                 photoViewer.paletteType = "LIGHT_MUTED"; // Android only
                 photoViewer.showAlbum = false; // Android only (true = shows album first, false = shows fullscreen gallery directly)
                 photoViewer.startIndex = this.activeImageIndex; // start index for the fullscreen gallery
-                //photoViewer.showViewer(this.getArticle.pictures);
+                photoViewer.showViewer(this.getArticle.pictures);
             },
             fetchData: function () {
                 this.loading = true;

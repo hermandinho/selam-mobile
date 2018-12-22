@@ -55,6 +55,8 @@ let mutations = {
         if (!data) return;
         state.searchFilters.countries = data.countries || [];
         state.searchFilters.towns = data.towns || [];
+        state.categories = data.categories || [];
+        state.subCategories = data.subCategories || [];
     },
     [TYPES.TOGGLE_TOWN_COUNTRY]: (state, data) => {
         if (!data) return;

@@ -292,13 +292,15 @@
                 API.fetchConfigFilters().then(res => {
                     const data = res.data;
                     const countries = [];
+                    const categories = data.categories || [];
+                    const subCategories = data.subCategories || [];
                     const towns = data.towns;
 
                     data.countries.map(c => {
                         countries.push(c.name);
                     });
 
-                    this.fetchedSearchFilters({ countries, towns });
+                    this.fetchedSearchFilters({ countries, towns, categories, subCategories });
                 })
             }
         },
