@@ -46,6 +46,9 @@ let actions = {
     toggleSearchOption: (store, data) => {
         store.commit(TYPES.TOGGLE_SEARCH_OPTION, data);
     },
+    updateConversationUnreadCount: (store, data) => {
+        store.commit(TYPES.SET_CONVERSATION_UNREAD_COUNT, data);
+    },
 };
 
 export default actions;

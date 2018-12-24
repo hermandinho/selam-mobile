@@ -1,5 +1,5 @@
 <template>
-    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo">
+    <Page verticalAlignment="top" @navigatedTo="onNavigatedTo" @loaded="onLoaded">
         <ActionBar class="action-bar" color="#ffffff">
             <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
             <Label class="action-bar-title" text="Selam Mobile"></Label>
@@ -89,11 +89,7 @@
             return {
                 searchPhrase: '',
                 viewMode: 'grid',
-                data: [/*1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18*/],
-                /*filters: {
-                    towns: [],
-                    country: ''
-                },*/
+                data: [],
                 page: 1,
                 maxPages: 1,
                 totalData: 0,
@@ -132,6 +128,11 @@
                 this.page = 1;
                 this.fetchData({}).then(res => {})
             },
+            onLoaded: function () {
+                setTimeout(() => {
+                    LIBS.createAddBanner();
+                });
+            },
             onSearchBoxLoaded: function (args) {
                 const page = args.object;
                 const searchbarElement = page.getViewById("articleSearchBar");
@@ -141,7 +142,6 @@
                 if(this.$refs.gridView) {
                     this.$refs.gridView.refresh();
                 }
-                //this.viewMode = this.viewMode === 'grid' ?  'list' : 'grid';
             },
             onPullToRefreshInitiated: function ({object}) {
                 console.log('Pulling...');
@@ -235,7 +235,6 @@
                 });
             },
             onNavigatedTo: function ({isBackNavigation}) {
-                LIBS.createAddBanner();
                 if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
                 this.fetchFilters();
@@ -276,7 +275,7 @@
                     if (docs.length && this.page <= this.maxPages)
                         this.page ++;
 
-                    if (docs.length === 0) {
+                    if (this.data.length === 0) {
                         this.data.push({ _id: 'empty' });
                     }
                     // this.refreshList();
@@ -292,13 +291,15 @@
                 API.fetchConfigFilters().then(res => {
                     const data = res.data;
                     const countries = [];
+                    const categories = data.categories || [];
+                    const subCategories = data.subCategories || [];
                     const towns = data.towns;
 
                     data.countries.map(c => {
                         countries.push(c.name);
                     });
 
-                    this.fetchedSearchFilters({ countries, towns });
+                    this.fetchedSearchFilters({ countries, towns, categories, subCategories });
                 })
             }
         },

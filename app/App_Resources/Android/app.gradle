@@ -9,14 +9,24 @@
 // e.g. project.ext.googlePlayServicesVersion = "15.0.1"
 // create a file named before-plugins.gradle in the current directory and place it there
 
+
 android {
   defaultConfig {
     applicationId = 'com.selam.mobile'
+    multiDexEnabled true
     generatedDensities = []
   }
   aaptOptions {
     additionalParameters "--no-version-vectors"
   }
+  project.ext {
+    googlePlayServicesVersion = "+"
+  }
+  dexOptions {
+
+      jumboMode true
+      javaMaxHeapSize "4g"
+    }
 }
 
 def settingsGradlePath

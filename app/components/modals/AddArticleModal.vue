@@ -11,31 +11,31 @@
                 <GridLayout columns="*,2*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container p-5 m-10">
                     <ActivityIndicator row="4" :busy="loading" rowSpan="1" colSpan="2" color="#ec4980" />
 
-                    <Label class="margin-bottom label" text="Titre" row="0" col="0" />
+                    <Label class="margin-bottom label" text="Titre" row="0" col="0" automationText="Titre de l'annonce"/>
                     <TextView col="1" row="0" hint="Titre" v-model="article.title" class="margin-bottom form-input" autocorrect="false"/>
 
-                    <Label class="margin-bottom label" text="Description" row="1" col="0" />
+                    <Label class="margin-bottom label" text="Description" row="1" col="0" automationText="Description de l'annonce"/>
                     <TextView v-model="article.description" col="1" row="1" autocorrect="false"/>
 
-                    <Label class="margin-bottom label" text="Catégorie" row="2" col="0" />
+                    <Label class="margin-bottom label" text="Catégorie" row="2" col="0" automationText="Catégorie de l'annonce"/>
                     <Button class="margin-bottom btn btn-outline" col="1" row="2" @tap="openCategoriesSelect">{{ selectedCategory }}</Button>
 
-                    <Label class="margin-bottom label" text="Sous catégorie" row="3" col="0" />
+                    <Label class="margin-bottom label" text="Sous catégorie" row="3" col="0" automationText="Sous catégorie"/>
                     <Button class="margin-bottom btn btn-outline" col="1" row="3" @tap="openSubCategoriesSelect">{{ article.subCategory }}</Button>
 
-                    <Label class="margin-bottom label" text="Pays" row="4" col="0" />
+                    <Label class="margin-bottom label" text="Pays" row="4" col="0" automationText="Pays"/>
                     <Button class="margin-bottom btn btn-outline" col="1" row="4" @tap="openCountriesSelect">{{ selectedCountry }}</Button>
 
-                    <Label class="margin-bottom label" text="Ville" row="5" col="0" />
+                    <Label class="margin-bottom label" text="Ville" row="5" col="0" automationText="Ville"/>
                     <Button class="margin-bottom btn btn-outline" col="1" row="5" @tap="openRegionsSelect">{{ article.region }}</Button>
 
-                    <Label class="margin-bottom label" text="Prix" row="6" col="0" />
+                    <Label class="margin-bottom label" text="Prix" row="6" col="0" automationText="Prix de l'article"/>
                     <GridLayout row="6" col="1" columns="2*,*" rows="*" class="margin-bottom price-layout">
                         <TextField col="0" row="0" hint="Prix" v-model="article.price.amount" class="form-input" autocorrect="false" keyboardType="number"/>
                         <Button class="btn btn-outline" col="1" row="0" @tap="openCurrenciesSelect">{{ article.currency }}</Button>
                     </GridLayout>
 
-                    <Label class="margin-bottom label" text="Images" row="7" col="0" />
+                    <Label class="margin-bottom label" text="Images" row="7" col="0" automationText="Images"/>
                     <Button class="btn btn-outline" col="1" row="7" @tap="selectPictures">Choisir</Button>
 
                     <WrapLayout v-if="article.pictures.length" orientation="horizontal" row="8" col="0" colSpan="2" class="margin-bottom preview-images p-r-10" width="auto" height="auto">
@@ -80,8 +80,8 @@
         data: function () {
             return {
                 article: {
-                    title: 'Test',
-                    description: 'La description de mon article.',
+                    title: '',
+                    description: '',
                     price: {
                         amount: '1.0',
                         fixed: true

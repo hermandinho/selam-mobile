@@ -32,6 +32,7 @@
 
 <script>
     import * as app from 'tns-core-modules/application'
+    import { messaging, Message } from "nativescript-plugin-firebase/messaging";
     const connectivityModule = require("tns-core-modules/connectivity");
     import * as platform from 'tns-core-modules/platform';
     import {Pusher} from 'nativescript-pusher';
@@ -53,17 +54,37 @@
                 uuid: null,
                 pusherConnected: false,
                 tabViewLayout: null,
-                tabView: null
+                tabView: null,
+                tabHeight: 145,
+                unreadMessages: {}
             }
         },
         computed: {
             ...Vuex.mapGetters(['getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
             getToken: function () {
                 return localStorage.getItem('token');
+            },
+            me: function () {
+                const user = localStorage.getItem('user');
+                if (!user) return;
+                return JSON.parse(user);
+            },
+            countUnreadConversations: function () {
+                let count = 0;
+                for (let cv in this.unreadMessages) {
+                    count ++;
+                }
+                return count;
             }
         },
         methods: {
-            ...Vuex.mapActions(['setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage', 'receivedTypingEvent']),
+            ...Vuex.mapActions(['setPusherInstance',
+                'setPusherChannel',
+                'setNetWorkStatus',
+                'receivedMessage',
+                'receivedTypingEvent',
+                'updateConversationUnreadCount'
+            ]),
             tabChanged: function (index) {
                 this.selectedIndex = index.value;
                 if (this.selectedIndex === 0) {
@@ -78,15 +99,16 @@
             handleOpenedChat: function () {
                 if (this.tabViewLayout) {
                     setTimeout(() => {
-                        console.log(this.tabViewLayout);
+                        this.tabHeight = this.tabViewLayout.getHeight();
                         this.tabViewLayout.getLayoutParams().height = 0;
+                        // this.tabViewLayout.getLayoutParams().visibility = 'hidden';
                         this.tabViewLayout.requestLayout();
-                    },100)
+                    })
                 }
             },
             handleClosedChat: function () {
                 if (this.tabViewLayout) {
-                    this.tabViewLayout.getLayoutParams().height = 145;
+                    this.tabViewLayout.getLayoutParams().height = this.tabHeight;
                     this.tabViewLayout.requestLayout();
                 }
             },
@@ -166,8 +188,42 @@
                     contentView.onUnloaded();
                 }
             },
+            initFirebase: function () {
+                messaging.getCurrentPushToken().then(token => {
+                    console.log('GOT CURRENT PUSH TOKEN');
+                    API.updatePushToken({
+                        pushToken: token,
+                        uuid: platform.device.uuid,
+                    }).then(res => {
+                        console.log(res.data);
+                    }).catch(err => {
+                        console.log('ERROR UPDATING PUSH TOKEN', err);
+                    })
+                });
+                messaging.registerForPushNotifications({
+                    onPushTokenReceivedCallback: (token) => {
+                        console.log("Firebase push token: " + token);
+                    },
+
+                    onMessageReceivedCallback: (message) => {
+                        console.log("Push message received: " + JSON.stringify(message));
+                        if (message.title && message.body) {
+                            LIBS.sentLocalNotification(message);
+                        }
+                    },
+
+                    // Whether you want this plugin to automatically display the notifications or just notify the callback. Currently used on iOS only. Default true.
+                    showNotifications: true,
+
+                    // Whether you want this plugin to always handle the notifications when the app is in foreground. Currently used on iOS only. Default false.
+                    showNotificationsWhenInForeground: true
+                }).then(() => console.log("Registered for push")).catch(err => {
+                    console.log("Cannot register for push ", err)
+                });
+            },
             OnNavigatedTo: function ({object, isBackNavigation}) {
                 this.handlePusher();
+                this.initFirebase();
                 // const myConnectionType = connectivityModule.getConnectionType();
                 try {
                     connectivityModule.startMonitoring((newConnectionType) => {
@@ -214,6 +270,12 @@
 
                     pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
                         this.receivedMessage(data.data);
+                        if (!this.unreadMessages[data.data.conversation])
+                            this.unreadMessages[data.data.conversation] = 0;
+                        this.unreadMessages[data.data.conversation] += 1;
+                        this.setBadgeNumber(0, this.countUnreadConversations);
+                        this.updateConversationUnreadCount({ id:  data.data.conversation, count: 1});
+                        console.log(data.data);
                     });
                     pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
                         this.receivedTypingEvent(data.data);

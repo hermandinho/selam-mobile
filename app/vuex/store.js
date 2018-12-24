@@ -22,6 +22,9 @@ const state = {
             fixedPrice: false
         }
     },
+    categories: [],
+    subCategories: [],
+    unreadMessages: {},
 };
 
 const actions = require('./actions');

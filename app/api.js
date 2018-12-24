@@ -1,7 +1,14 @@
 import axios from 'axios';
+import { messaging, Message } from "nativescript-plugin-firebase/messaging";
 
 // const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
 const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
+
+const unregisterFromPush = () => {
+    messaging.unregisterForPushNotifications().then(res => {
+        console.log('UNREGISTERED FROM PUSH')
+    });
+};
 
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -17,6 +24,7 @@ axios.interceptors.response.use((response) => {
     return response;
 }, (error) => {
     if (401 === error.response.status) {
+        unregisterFromPush();
         alert("Votre session a expirée. Véillez vous re-connecter");
     } else {
         return Promise.reject(error);
@@ -32,6 +40,7 @@ let login = (params) => {
 };
 
 let logout = () => {
+    unregisterFromPush();
     return axios.post(API_BASE_URL + '/user/logout')
 };
 
@@ -41,6 +50,10 @@ let register = (params) => {
 
 let updateProfile = (id, params) => {
     return axios.patch(API_BASE_URL + '/user/' + id, params)
+};
+
+let updatePushToken = (params) => {
+    return axios.patch(API_BASE_URL + '/user/push-token/set', params)
 };
 
 let fetchConfigFilters = () => {
@@ -106,6 +119,7 @@ export default{
     logout,
     register,
     updateProfile,
+    updatePushToken,
     fetchConfigFilters,
     createArticle,
     fetchArticles,
