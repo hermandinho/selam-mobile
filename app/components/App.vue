@@ -190,11 +190,14 @@
             },
             initFirebase: function () {
                 messaging.getCurrentPushToken().then(token => {
+                    console.log('GOT CURRENT PUSH TOKEN');
                     API.updatePushToken({
                         pushToken: token,
                         uuid: platform.device.uuid,
                     }).then(res => {
                         console.log(res.data);
+                    }).catch(err => {
+                        console.log('ERROR UPDATING PUSH TOKEN', err);
                     })
                 });
                 messaging.registerForPushNotifications({

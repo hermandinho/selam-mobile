@@ -80,8 +80,8 @@
         data: function () {
             return {
                 article: {
-                    title: 'Test',
-                    description: 'La description de mon article.',
+                    title: '',
+                    description: '',
                     price: {
                         amount: '1.0',
                         fixed: true

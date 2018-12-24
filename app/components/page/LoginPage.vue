@@ -1,5 +1,5 @@
 <template>
-    <Page class="page-layout" backgroundSpanUnderStatusBar="true" actionBarHidden="true" statusBarStyle="dark" androidStatusBarBackground="#ec4980">
+    <Page class="page-layout" backgroundSpanUnderStatusBar="true" actionBarHidden="true" statusBarStyle="dark" androidStatusBarBackground="#ec4980" @loaded="onLoaded">
         <ActionBar class="action-bar" color="#ffffff">
             <Label class="action-bar-title" text="Selam Login"></Label>
         </ActionBar>
@@ -59,6 +59,7 @@
 
 <script>
     import {Pusher} from 'nativescript-pusher';
+    import { messaging, Message } from "nativescript-plugin-firebase/messaging";
     import Vuex from 'vuex';
     import * as platform from 'tns-core-modules/platform';
     import App from '../App';
@@ -69,9 +70,9 @@
         data: function () {
             return {
                 user: {
-                    email: 'test@dev.com',
-                    password: 'test',
-                    name: 'DEMO',
+                    email: '',
+                    password: '',
+                    name: '',
                     phoneNumber: '',
                     uuid: platform.device.uuid,
                     os: platform.device.os,
@@ -91,6 +92,13 @@
         },
         methods: {
             ...Vuex.mapActions(['setPusherChannel', 'receivedMessage', 'receivedTypingEvent']),
+            onLoaded: function () {
+                const isDev = API.getAPIBaseURL() == 'https://selammobile-api.serveo.net/api/v1';
+                if (isDev) {
+                    this.user.email = 'test@dev.com';
+                    this.user.password = 'test';
+                }
+            },
             processForm: function () {
               if (this.isLogin) {
                   if (!this.user.email.trim().length || !this.user.password.trim().length) {
@@ -110,46 +118,56 @@
             },
             login: function () {
                 this.processing = true;
-                API.login({
-                    email: this.user.email,
-                    password: this.user.password,
-                    uuid: this.user.uuid,
-                    pusherChannel: this.user.pusherChannel,
-                    os: this.user.os,
-                    type: this.user.type,
-                    version: this.user.version
-                })
-                .then(res => {
-                    localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('user', JSON.stringify(res.data.user));
-                    this.processing = false;
-                    this.loginComplete(res.data.user);
+                messaging.getCurrentPushToken().then(token => {
+                    API.login({
+                        email: this.user.email,
+                        password: this.user.password,
+                        uuid: this.user.uuid,
+                        pusherChannel: this.user.pusherChannel,
+                        os: this.user.os,
+                        type: this.user.type,
+                        version: this.user.version,
+                        pushToken: token
+                    })
+                        .then(res => {
+                            localStorage.setItem('token', res.data.token);
+                            localStorage.setItem('user', JSON.stringify(res.data.user));
+                            this.processing = false;
+                            this.loginComplete(res.data.user);
+                        }).catch(err => {
+                        alert(err.response.data.error || "Le serveur est indisponible pour le moment. Essayez plus tard.");
+                        this.processing = false;
+                    });
                 }).catch(err => {
-                    alert(err.response.data.error || "Le serveur est indisponible pour le moment. Essayez plus tard.");
                     this.processing = false;
                 });
             },
             register: function () {
                 this.processing = true;
-                API.register({
-                    email: this.user.email,
-                    password: this.user.password,
-                    uuid: this.user.uuid,
-                    pusherChannel: this.user.pusherChannel,
-                    name: this.user.name,
-                    os: this.user.os,
-                    type: this.user.type,
-                    version: this.user.version,
-                    phoneNumber: this.user.phoneNumber,
-                }).then(res => {
-                    this.processing = false;
-                    localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('user', JSON.stringify(res.data.user));
-                    this.loginComplete(res.data.user);
+                messaging.getCurrentPushToken().then(token => {
+                    API.register({
+                        email: this.user.email,
+                        password: this.user.password,
+                        uuid: this.user.uuid,
+                        pusherChannel: this.user.pusherChannel,
+                        name: this.user.name,
+                        os: this.user.os,
+                        type: this.user.type,
+                        version: this.user.version,
+                        phoneNumber: this.user.phoneNumber,
+                        pushToken: token
+                    }).then(res => {
+                        this.processing = false;
+                        localStorage.setItem('token', res.data.token);
+                        localStorage.setItem('user', JSON.stringify(res.data.user));
+                        this.loginComplete(res.data.user);
+                    }).catch(err => {
+                        this.processing = false;
+                        alert(err.response.data.error);
+                    })
                 }).catch(err => {
                     this.processing = false;
-                    alert(err.response.data.error);
-                })
+                });
             },
 
             loginComplete: function (user) {
