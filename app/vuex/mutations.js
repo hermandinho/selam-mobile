@@ -62,10 +62,6 @@ let mutations = {
         if (!data) return;
         state.searchFilters.selectedCountry = data;
     },
-    [TYPES.TOGGLE_SEARCH_OPTION]: (state, data) => {
-        if (!data) return;
-        state.searchFilters.options[data.key] = data.value;
-    },
     [TYPES.TOGGLE_TOWN_SELECT]: (state, data) => {
         if (!data) {
             state.searchFilters.selectedTowns = []
@@ -77,6 +73,12 @@ let mutations = {
                 state.searchFilters.selectedTowns = state.searchFilters.selectedTowns.filter(t => t._id !== data._id)
             }
         }
+    },
+    [TYPES.SET_CONVERSATION_UNREAD_COUNT]: (state, data) => {
+        if (!data) return;
+        if (!state.unreadMessages[data.id])
+            state.unreadMessages[data.id] = 0;
+        state.unreadMessages[data.id] += data.count;
     },
 };
 

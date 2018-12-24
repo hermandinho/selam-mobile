@@ -55,7 +55,8 @@
                 pusherConnected: false,
                 tabViewLayout: null,
                 tabView: null,
-                tabHeight: 145
+                tabHeight: 145,
+                unreadMessages: {}
             }
         },
         computed: {
@@ -68,9 +69,22 @@
                 if (!user) return;
                 return JSON.parse(user);
             },
+            countUnreadConversations: function () {
+                let count = 0;
+                for (let cv in this.unreadMessages) {
+                    count ++;
+                }
+                return count;
+            }
         },
         methods: {
-            ...Vuex.mapActions(['setPusherInstance', 'setPusherChannel', 'setNetWorkStatus', 'receivedMessage', 'receivedTypingEvent']),
+            ...Vuex.mapActions(['setPusherInstance',
+                'setPusherChannel',
+                'setNetWorkStatus',
+                'receivedMessage',
+                'receivedTypingEvent',
+                'updateConversationUnreadCount'
+            ]),
             tabChanged: function (index) {
                 this.selectedIndex = index.value;
                 if (this.selectedIndex === 0) {
@@ -253,6 +267,12 @@
 
                     pusher.subscribeToChannelEvent(this.getPusherChannel, 'message', (error, data) => {
                         this.receivedMessage(data.data);
+                        if (!this.unreadMessages[data.data.conversation])
+                            this.unreadMessages[data.data.conversation] = 0;
+                        this.unreadMessages[data.data.conversation] += 1;
+                        this.setBadgeNumber(0, this.countUnreadConversations);
+                        this.updateConversationUnreadCount({ id:  data.data.conversation, count: 1});
+                        console.log(data.data);
                     });
                     pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
                         this.receivedTypingEvent(data.data);

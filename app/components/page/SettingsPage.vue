@@ -46,6 +46,7 @@
                     <Label row="12" col="0" class="option-label" text="Nouvelles annonces" width="50%"/>
                     <Button
                         @tap="openCategoriesSelectModal"
+                        width="45%"
                         row="12" col="1"
                         color="#ec4980"
                         class="option-switch"

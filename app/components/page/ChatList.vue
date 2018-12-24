@@ -1,8 +1,8 @@
 <template>
     <Page @navigatedTo="onNavigatedTo">
         <ActionBar class="action-bar" color="#ffffff">
-            <!--<NavigationButton tap="onBackButtonTap" android.systemIcon="ic_menu_back" />-->
             <Label class="action-bar-title" text="Discutions"></Label>
+            <!--<Label class="action-bar-title" :text="JSON.stringify(getConversationsUnreadCount)"></Label>-->
 
             <ActionItem v-show="selectedItems.length > 0" @tap="deleteConversations"
                         ios.systemIcon="9" ios.position="left"
@@ -47,7 +47,8 @@
                                     <Label class="p-10 msg-date m-r-12" marginTop="2">
                                         <FormattedString>
                                             <Span :text="item.lastMessage && item.lastMessage.sent_at | toDate" />
-                                            <Span text="" class="badge" />
+                                            <Span v-show="getConversationsUnreadCount[item._id]"
+                                                  :text="getConversationsUnreadCount[item._id]" class="badge" />
                                         </FormattedString>
                                     </Label>
                                 </FlexboxLayout>
@@ -77,6 +78,11 @@
 
     export default {
         name: 'chat',
+        watch: {
+            getConversationsUnreadCount: function (n) {
+                console.log('CHANGE EVENT ', JSON.stringify(n));
+            }
+        },
         data: function () {
             return {
                 searchPhrase: '',
@@ -90,7 +96,7 @@
             }
         },
         computed: {
-            ...Vuex.mapGetters(['getChatUsers', 'getTypers']),
+            ...Vuex.mapGetters(['getChatUsers', 'getTypers', 'getConversationsUnreadCount']),
             me: function () {
                 const user = localStorage.getItem('user');
                 if (!user) return null;

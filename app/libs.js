@@ -2,7 +2,7 @@
 import firebase from 'nativescript-plugin-firebase';
 import { LocalNotifications } from "nativescript-local-notifications";
 
-const testing = true;
+const testing = false;
 
 LocalNotifications.addOnMessageReceivedCallback(notificationData => {
     console.log("Notification received: " + JSON.stringify(notificationData));

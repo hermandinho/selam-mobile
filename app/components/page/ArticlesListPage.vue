@@ -129,7 +129,9 @@
                 this.fetchData({}).then(res => {})
             },
             onLoaded: function () {
-
+                setTimeout(() => {
+                    LIBS.createAddBanner();
+                });
             },
             onSearchBoxLoaded: function (args) {
                 const page = args.object;
@@ -233,9 +235,6 @@
                 });
             },
             onNavigatedTo: function ({isBackNavigation}) {
-                setTimeout(() => {
-                    LIBS.createAddBanner();
-                });
                 if (isBackNavigation) return;
                 this.fetchData({}).then(res => {}).catch(err => {});
                 this.fetchFilters();

@@ -12,73 +12,75 @@
         </ActionBar>
 
         <ScrollView orientation="vertical" >
-            <GridLayout columns="2*,*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container m-10">
-                <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
-                <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
+            <DockLayout stretchLastChild="true">
+                <GridLayout dock="top" columns="2*,*" rows="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto,auto" width="100%" class="container m-10">
+                    <Label class="label title" :text="getArticle.title" textWrap="true" width="auto" col="0" row="0"/>
+                    <Label class="label price text-right" :text="getArticle.price.amount | currency(getArticle.currency || 'CFA')" width="auto" col="1" row="0"/>
 
-                <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
-                       width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFit' : 'aspectFit'"
-                       height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
+                    <Image :src="getArticle.pictures[activeImageIndex] || 'res://ic_no_image'" @tap="showGallery"
+                           width="auto" :stretch="getArticle.pictures[activeImageIndex] !== 'res://ic_no_image' ? 'aspectFit' : 'aspectFit'"
+                           height="180" class="main-image m-t-15" col="0" row="1" colSpan="2"/>
 
-                <ScrollView orientation="horizontal" col="0" row="2" colSpan="2" class="image-thumbnails">
-                    <GridLayout rows="auto" columns="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto">
-                        <Image
-                            @tap="activeImageIndex = i"
-                            :src="img || 'res://ic_no_image'"
-                            stretch="aspectFill"
-                            width="65" height="65"
-                            class="preview-image"
-                            :class="i === activeImageIndex ? 'active': ''"
-                            :col="i" row="0"
-                            :key="getRandomKey()"
-                            v-for="(img, i) in getArticle.pictures"/>
+                    <ScrollView orientation="horizontal" col="0" row="2" colSpan="2" class="image-thumbnails">
+                        <GridLayout rows="auto" columns="auto,auto,auto,auto,auto,auto,auto,auto,auto,auto">
+                            <Image
+                                    @tap="activeImageIndex = i"
+                                    :src="img || 'res://ic_no_image'"
+                                    stretch="aspectFill"
+                                    width="65" height="65"
+                                    class="preview-image"
+                                    :class="i === activeImageIndex ? 'active': ''"
+                                    :col="i" row="0"
+                                    :key="getRandomKey()"
+                                    v-for="(img, i) in getArticle.pictures"/>
+                        </GridLayout>
+                    </ScrollView>
+
+                    <TextView editable="false" col="0" row="3" colSpan="2" class="description">
+                        <FormattedString>
+                            <Span :text="getArticle.description"/>
+                        </FormattedString>
+                    </TextView>
+
+                    <Label row="4" col="0" colSpan="2" class="no-border-bottom contact-info-zone">
+                        <FormattedString>
+                            <Span text="Publié le: " class="bold-label" fontWeight="Bold"/>
+                            <Span :text="getArticle.updated_at | toDate"  fontWeight="Italic"/>
+                        </FormattedString>
+                    </Label>
+
+                    <Label row="5" col="0" colSpan="2" class="no-border-bottom">
+                        <FormattedString>
+                            <Span text="Par: " class="bold-label" fontWeight="Bold"/>
+                            <Span :text="getArticle.user.name || 'N/A'" fontWeight="Italic" />
+                        </FormattedString>
+                    </Label>
+
+                    <Label row="6" col="0" colSpan="2" class="no-border-bottom" v-if="getArticle.region">
+                        <FormattedString>
+                            <Span text="Disponible a : " class="bold-label" fontWeight="Bold"/>
+                            <Span :text="getArticle.region && getArticle.region.country ? (getArticle.region.country.name + ' / ' + getArticle.region.name): '--'" fontWeight="Italic" />
+                        </FormattedString>
+                    </Label>
+
+                    <Label row="7" col="0" colSpan="2" class="no-border-bottom" v-if="getArticle.subCategory">
+                        <FormattedString>
+                            <Span text="Catégorie : " class="bold-label" fontWeight="Bold"/>
+                            <Span :text="getArticle.subCategory && getArticle.subCategory.category ? (getArticle.subCategory.category.name + ' / ' + getArticle.subCategory.name) : '--'" fontWeight="Italic" />
+                        </FormattedString>
+                    </Label>
+
+                    <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options title"/>
+                    <GridLayout columns="auto,auto" rows="auto,auto" row="9" colSpan="2" col="0" width="100%">
+                        <Label text="Prix négociable" class=" option-label" row="0" col="0" width="50%"/>
+                        <Label :text="getArticle.price.fixed ? 'Non' : 'Oui'" row="0" col="1"  width="50%" class="option-value"/>
+
+                        <Label text="Echange possible" class=" option-label" row="1" col="0" width="50%"/>
+                        <Label :text="getArticle.exchange ? 'Oui' : 'Non'" row="1" col="1"  width="50%" class="option-value"/>
                     </GridLayout>
-                </ScrollView>
 
-                <TextView editable="false" col="0" row="3" colSpan="2" class="description">
-                    <FormattedString>
-                        <Span :text="getArticle.description"/>
-                    </FormattedString>
-                </TextView>
-
-                <Label row="4" col="0" colSpan="2" class="no-border-bottom contact-info-zone">
-                    <FormattedString>
-                        <Span text="Publié le: " class="bold-label" fontWeight="Bold"/>
-                        <Span :text="getArticle.updated_at | toDate"  fontWeight="Italic"/>
-                    </FormattedString>
-                </Label>
-
-                <Label row="5" col="0" colSpan="2" class="no-border-bottom">
-                    <FormattedString>
-                        <Span text="Par: " class="bold-label" fontWeight="Bold"/>
-                        <Span :text="getArticle.user.name || 'N/A'" fontWeight="Italic" />
-                    </FormattedString>
-                </Label>
-
-                <Label row="6" col="0" colSpan="2" class="no-border-bottom" v-if="getArticle.region">
-                    <FormattedString>
-                        <Span text="Disponible a : " class="bold-label" fontWeight="Bold"/>
-                        <Span :text="getArticle.region && getArticle.region.country ? (getArticle.region.country.name + ' / ' + getArticle.region.name): '--'" fontWeight="Italic" />
-                    </FormattedString>
-                </Label>
-
-                <Label row="7" col="0" colSpan="2" class="no-border-bottom" v-if="getArticle.subCategory">
-                    <FormattedString>
-                        <Span text="Catégorie : " class="bold-label" fontWeight="Bold"/>
-                        <Span :text="getArticle.subCategory && getArticle.subCategory.category ? (getArticle.subCategory.category.name + ' / ' + getArticle.subCategory.name) : '--'" fontWeight="Italic" />
-                    </FormattedString>
-                </Label>
-
-                <Label text="OPTIONS" row="8" col="0" colSpan="2" class="label options title"/>
-                <GridLayout columns="auto,auto" rows="auto,auto" row="9" colSpan="2" col="0" width="100%">
-                    <Label text="Prix négociable" class=" option-label" row="0" col="0" width="50%"/>
-                    <Label :text="getArticle.price.fixed ? 'Non' : 'Oui'" row="0" col="1"  width="50%" class="option-value"/>
-
-                    <Label text="Echange possible" class=" option-label" row="1" col="0" width="50%"/>
-                    <Label :text="getArticle.exchange ? 'Oui' : 'Non'" row="1" col="1"  width="50%" class="option-value"/>
                 </GridLayout>
-
-                <FlexboxLayout v-if="!isMyArticle" justifyContent="space-around" alignItems="center" flexDirection="columns" row="10" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
+                <FlexboxLayout doc="bottom" v-if="!isMyArticle" justifyContent="center" alignItems="center" flexDirection="columns" row="10" col="0" colSpan="2" class="contact-zone" backgroundColor="lightgray">
                     <Ripple borderRadius="20">
                         <Image v-if="getArticle.user && getArticle.user.acceptEmails"src="res://ic_email" stretch="aspectFill" width="60" height="60" class="contact-icon" alignSelf="center"/>
                     </Ripple>
@@ -92,8 +94,7 @@
                         <Image v-if="getArticle.user && getArticle.user.acceptSMS && getArticle.user.phoneNumber" src="res://ic_sms" stretch="aspectFit" width="60" height="60" class="contact-icon" alignSelf="center"/>
                     </Ripple>
                 </FlexboxLayout>
-
-            </GridLayout>
+            </DockLayout>
         </ScrollView>
     </Page>
 

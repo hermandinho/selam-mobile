@@ -9,7 +9,8 @@
         </ActionBar>
 
         <GridLayout class="main-grid" columns="*" rows="*,auto">
-            <ScrollView row="0" column="1" orientation="vertical" height="95%" class="p-0">
+            <ActivityIndicator row="0" :busy="loading" rowSpan="1" colSpan="0" color="#ec4980" />
+            <ScrollView v-show="!loading" row="0" column="1" orientation="vertical" height="95%" class="p-0">
                 <RadListView ref="messagesListView"
                      for="(item, index) in getCurrentChatMessages"
                      class="chatBox"
@@ -105,7 +106,8 @@
                 message: '',
                 selectedMessages: [],
                 typing: false,
-                timeout: undefined
+                timeout: undefined,
+                loading: true
             }
         },
         watch: {
@@ -136,6 +138,7 @@
             },
             fetchChat: function () {
                 if (!this.user || !this.user._id) return;
+                this.loading = true;
                 API.fetchMessages(this.user._id).then(res => {
                     this.fetchedConversationMessages(res.data);
                     if (res.data && res.data[0]) {
@@ -146,10 +149,13 @@
                             this.message = this.text;
                         }
                     }
+                    this.loading = false;
                 }).catch(err => {
                     alert('Impossible de charger cette discussion.').then(res => {
                         this.$navigateBack();
                     })
+                    this.loading = false;
+
                 })
             },
             onNavigatedTo: function ({object}) {

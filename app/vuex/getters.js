@@ -38,6 +38,9 @@ let getters = {
     getSubCategories: (state) => {
         return state.subCategories;
     },
+    getConversationsUnreadCount: (state) => {
+        return state.unreadMessages;
+    },
 };
 
 export default getters;

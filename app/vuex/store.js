@@ -24,6 +24,7 @@ const state = {
     },
     categories: [],
     subCategories: [],
+    unreadMessages: {},
 };
 
 const actions = require('./actions');
