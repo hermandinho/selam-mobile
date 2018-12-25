@@ -40,6 +40,7 @@
     import ChatListPage from './page/ChatList';
     import ArticlesListPage from './page/ArticlesListPage';
     import SettingsPage from './page/SettingsPage';
+    import LoginPage from './page/LoginPage'
     // import {isAndroid, isIOS} from 'platform';
     import {ContentView} from 'ui/content-view';
     import {Label} from 'ui/label';
@@ -59,8 +60,19 @@
                 unreadMessages: {}
             }
         },
+        watch: {
+            isLoggedOut: function (n) {
+                if (n) {
+                    this.$navigateTo(LoginPage, {
+                        animated: true,
+                        clearHistory: true,
+                        frame: 'mainFrame'
+                    });
+                }
+            }
+        },
         computed: {
-            ...Vuex.mapGetters(['getPusherInstance', 'getPusherChannel', 'getNetWorkStatus']),
+            ...Vuex.mapGetters(['getPusherInstance', 'getPusherChannel', 'getNetWorkStatus', 'isLoggedOut']),
             getToken: function () {
                 return localStorage.getItem('token');
             },
@@ -292,7 +304,8 @@
         components: {
             ChatListPage,
             ArticlesListPage,
-            SettingsPage
+            SettingsPage,
+            LoginPage
         },
         mounted: function () {
             app.on(app.launchEvent, (args) => {

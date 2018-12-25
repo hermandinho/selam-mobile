@@ -41,6 +41,9 @@ let getters = {
     getConversationsUnreadCount: (state) => {
         return state.unreadMessages;
     },
+    isLoggedOut: (state) => {
+        return state.loggedOut;
+    },
 };
 
 export default getters;

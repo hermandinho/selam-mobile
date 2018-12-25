@@ -80,6 +80,9 @@ let mutations = {
             state.unreadMessages[data.id] = 0;
         state.unreadMessages[data.id] += data.count;
     },
+    [TYPES.REDIRECT_TO_LOGIN]: (state, data) => {
+        state.loggedOut = true;
+    },
 };
 
 export default mutations;

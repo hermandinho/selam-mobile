@@ -49,6 +49,9 @@ let actions = {
     updateConversationUnreadCount: (store, data) => {
         store.commit(TYPES.SET_CONVERSATION_UNREAD_COUNT, data);
     },
+    redirectToLogin: (store, data) => {
+        store.commit(TYPES.REDIRECT_TO_LOGIN, data);
+    },
 };
 
 export default actions;
