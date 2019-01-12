@@ -64,7 +64,7 @@
                 loading: false,
                 selectedTowns: [],
                 selectedCountry: '',
-                selectedCountryIndex: 0,
+                selectedCountryIndex: -1,
                 preselectedTownsIds: [],
                 dirty: false,
                 selectedFiltersTab: 0,

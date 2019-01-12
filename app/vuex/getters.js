@@ -45,6 +45,9 @@ let getters = {
     getConversationsUnreadCount: (state) => {
         return state.unreadMessages;
     },
+    isLoggedOut: (state) => {
+        return state.loggedOut;
+    },
     getLastFetchedConversations: (state) => {
         return state.lastFetchedConversations;
     },

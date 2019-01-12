@@ -7,6 +7,7 @@ const state = {
     pusherInstance: null,
     pusherChannel: null,
     hasNetwork: true,
+    loggedOut: false,
     chats: {},
     currentChatUser: null,
     currentConversationId: null,

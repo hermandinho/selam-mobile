@@ -65,6 +65,7 @@
 
 <script>
     import Vuex from 'vuex';
+    import * as platform from 'tns-core-modules/platform';
     import LoginPage from './LoginPage'
     import CategoriesModal from '../modals/NotificationsChannelsModal';
     import API from '../../api';
@@ -144,7 +145,7 @@
                 });
             },
             logout: function () {
-                API.logout().then(res => {
+                API.logout({ uuid: platform.device.uuid }).then(() => {
                     this.navigate();
                 }).catch(err => {
                     console.log('LOGOUT ERROR: ' , err);

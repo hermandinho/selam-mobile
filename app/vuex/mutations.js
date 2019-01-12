@@ -86,6 +86,9 @@ let mutations = {
             state.unreadMessages[data.id] = 0;
         state.unreadMessages[data.id] += data.count;
     },
+    [TYPES.REDIRECT_TO_LOGIN]: (state, data) => {
+        state.loggedOut = true;
+    },
     [TYPES.SET_LAST_CONVERSATIONS_FETCH_TIME]: (state, data) => {
         state.lastFetchedConversations = Date.now();
     },

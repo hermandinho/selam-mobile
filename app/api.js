@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { messaging, Message } from "nativescript-plugin-firebase/messaging";
+import store from './vuex/store'
+import actions from './vuex/actions'
 
 const API_BASE_URL = "https://selammobile-api.serveo.net/api/v1";
 //const API_BASE_URL = "https://selam-mobile.herokuapp.com/api/v1";
@@ -24,9 +26,13 @@ axios.interceptors.request.use((config) => {
 axios.interceptors.response.use((response) => {
     return response;
 }, (error) => {
-    if (401 === error.response.status) {
+    if (401 === error.response.status && error.config.url.indexOf('logout') === -1 && error.config.url.indexOf('login') === -1) {
         unregisterFromPush();
-        alert("Votre session a expirée. Véillez vous re-connecter");
+        alert("Votre session a expirée. Véillez vous re-connecter").then(res => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            actions.redirectToLogin(store, {});
+        });
     } else {
         return Promise.reject(error);
     }
@@ -40,9 +46,9 @@ let login = (params) => {
     return axios.post(API_BASE_URL + '/user/login', params)
 };
 
-let logout = () => {
+let logout = (params) => {
     unregisterFromPush();
-    return axios.post(API_BASE_URL + '/user/logout')
+    return axios.post(API_BASE_URL + '/user/logout', params);
 };
 
 let register = (params) => {
