@@ -127,7 +127,7 @@
         },
         methods: {
             ...Vuex.mapActions([
-                'setCurrentConversationId', 'fetchedConversationMessages', 'receivedMessage'
+                'setCurrentConversationId', 'fetchedConversationMessages', 'receivedMessage',
             ]),
             onBackButtonTap: function ({object, view}) {
                 if (this.isModal) {
@@ -138,6 +138,9 @@
             },
             fetchChat: function () {
                 if (!this.user || !this.user._id) return;
+                if (this.getCurrentChatMessages.length) {
+                    return this.getCurrentChatMessages;
+                }
                 this.loading = true;
                 API.fetchMessages(this.user._id).then(res => {
                     this.fetchedConversationMessages(res.data);

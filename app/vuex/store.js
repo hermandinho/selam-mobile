@@ -10,7 +10,8 @@ const state = {
     chats: {},
     currentChatUser: null,
     currentConversationId: null,
-    chatUsers: [],
+    chatUsers: {},
+    lastFetchedConversations: Date.now(),
     typers: [],
     searchFilters: {
         towns: [],

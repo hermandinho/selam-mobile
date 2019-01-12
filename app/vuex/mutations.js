@@ -25,18 +25,24 @@ let mutations = {
         if (!state.chats[data[0].conversation]) {
             Vue.set(state.chats, data[0].conversation, { messages: [], fetched: true });
         }
-
-        state.chats[data[0].conversation].messages = data;
+        Vue.set(state.chats[data[0].conversation], 'messages', data);
+        // state.chats[data[0].conversation].messages = data;
     },
     [TYPES.RECEIVED_MESSAGE]: (state, message) => {
         if (!message) return;
         if (!state.chats[message.conversation]) {
-            Vue.set(state.chats, message.conversation, { messages: [], fetched: false });
+            Vue.set(state.chats, message.conversation, { messages: [], fetched: false, lastMessage: message });
         }
         state.chats[message.conversation].messages.push(message);
+        state.chats[message.conversation].lastMessage = message;
+
+        state.lastFetchedConversations =  Date.now();
     },
     [TYPES.FETCHED_CHAT_USERS]: (state, data) => {
-        state.chatUsers = data;
+        state.chatUsers = {};
+        data && data.map(d => {
+            state.chatUsers[d._id] = d;
+        })
     },
     [TYPES.RECEIVED_TYPING_EVENT]: (state, data) => {
         if (!data || !data.hasOwnProperty('status')) return;
@@ -79,6 +85,9 @@ let mutations = {
         if (!state.unreadMessages[data.id])
             state.unreadMessages[data.id] = 0;
         state.unreadMessages[data.id] += data.count;
+    },
+    [TYPES.SET_LAST_CONVERSATIONS_FETCH_TIME]: (state, data) => {
+        state.lastFetchedConversations = Date.now();
     },
 };
 

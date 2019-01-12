@@ -23,9 +23,9 @@
                        @submit="onSubmit" />
 
             <ScrollView orientation="vertical" height="100%">
-
+                <!--<Label>{{ getChatUsers }}</Label>-->
                 <RadListView ref="listView"
-                             for="(item, index) in data"
+                             for="(item, index) in getChatUsers"
                              layout="linear"
                              :multipleSelection="true"
                              :selectionBehavior="selectedItems.length ? 'Press' : 'LongPress'"
@@ -35,12 +35,17 @@
                              @pullToRefreshInitiated="onPullToRefreshInitiated"
                              @loadMoreDataRequested="loadMore"
                              loadOnDemandBufferSize="5"
+                             itemHeight="50"
                              :loadOnDemandMode="hasMoreItems ? 'Auto' : 'None'"
                              @itemTap="openChat">
-                    <v-template name="full" if="item._id !== 'empty'">
-                        <FlexboxLayout :key="index" :class="getItemClass(item)" class="p-4" flexDirection="vertical" height="100" horizontalAlignment="left" verticalAlignment="center">
-                            <!--<Image width="50" borderRadius="100" horizontalAlignment="center" :src="getOtherUser(item) && getOtherUser(item).picture || 'res://ic_no_image'" stretch="aspectFit" class="img-rounded"/>-->
-                            <Image width="50" borderRadius="100" horizontalAlignment="center" :src="'res://ic_no_image'" stretch="aspectFit" class="img-rounded"/>
+                    <v-template name="full" if="item._id !== 'empty'" :key="index">
+                        <FlexboxLayout :key="index" :class="getItemClass(item)" class="p-4" flexDirection="vertical" horizontalAlignment="left" verticalAlignment="center">
+                            <Image
+                                v-if="item.lastMessage && item.lastMessage.trigger"
+                                width="80"
+                                borderRadius="100"
+                                :src="'https://api.adorable.io/avatars/200/' + item.lastMessage.trigger.email + '.png'"
+                                ></Image>
                             <FlexboxLayout flexDirection="column">
                                 <FlexboxLayout flexDirection="row" justifyContent="space-between">
                                     <Label class="p-10 user-name" marginTop="2">{{ getOtherUser(item) && getOtherUser(item).name || 'N/A' }}</Label>
@@ -78,11 +83,6 @@
 
     export default {
         name: 'chat',
-        watch: {
-            getConversationsUnreadCount: function (n) {
-                console.log('CHANGE EVENT ', JSON.stringify(n));
-            }
-        },
         data: function () {
             return {
                 searchPhrase: '',
@@ -96,11 +96,28 @@
             }
         },
         computed: {
-            ...Vuex.mapGetters(['getChatUsers', 'getTypers', 'getConversationsUnreadCount']),
+            ...Vuex.mapGetters(['getChatUsers', 'getTypers', 'getConversationsUnreadCount', 'getLastFetchedConversations']),
             me: function () {
                 const user = localStorage.getItem('user');
                 if (!user) return null;
                 return JSON.parse(user);
+            }
+        },
+        watch: {
+            getConversationsUnreadCount: function (n) {
+                console.log('CHANGE EVENT ', JSON.stringify(n));
+            },
+            getLastFetchedConversations: function (n) {
+                this.page = 1;
+                this.fetchData({}).then(res => {
+                    console.log(JSON.stringify(res));
+                }).catch(console.log);
+            },
+            getChatUsers: function (n) {
+                this.data = n;
+                /*console.log('CHANGED', n);
+                this.$refs.listView.refresh();*/
+                return n;
             }
         },
         methods: {
@@ -123,11 +140,10 @@
             },
             fetchData: function (params) {
                 this.loading = !params.loadingMore && !params.refresh;
-                return API.fetchConversations({page: this.page}).then(res => {
+                return API.fetchConversations({page: this.page}).then(async res => {
                     const docs = res.data.docs || [];
                     this.maxPages = res.data.pages;
                     this.totalData = res.data.total;
-
                     this.hasMoreItems = docs.length >= res.data.limit;
                     if (params.loadingMore) {
                         this.data = this.data.concat(docs);
@@ -139,6 +155,7 @@
                     if (this.data.length === 0) {
                         this.data.push({ _id: 'empty' });
                     }
+                    await this.fetchedChatUsers(this.data);
                     return Promise.resolve(res.data);
                 }).catch(err => {
                     return Promise.reject(err);
@@ -238,7 +255,6 @@
     .fa {
         color: $accent-dark;
     }
-
     .info {
         font-size: 20;
     }
@@ -248,19 +264,14 @@
     .message-preview {
         font-size: 12;
     }
-
-    .selected {
-
-    }
+    .selected { }
     .item-row {
         border-bottom: 5px solid red;
     }
-
     .msg-date {
         font-size: 10;
         font-style: italic;
     }
-
     .badge {
         color: #ec4980;
         font-size: 12;
@@ -272,12 +283,9 @@
         opacity: .3;
     }
 
-    .img-rounded {
-       /* margin: 15px 0 0 15px;
-        border-radius: 30;
-        border-color: gray;
-        border-width: 0.5;
-        height:20;
-        width:60;*/
+    .avatar {
+        background-color: #ff4c4a;
+        border-radius: 100;
+        width: 75;
     }
 </style>

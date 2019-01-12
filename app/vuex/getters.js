@@ -24,7 +24,11 @@ let getters = {
         return state.chats[state.currentConversationId].messages;
     },
     getChatUsers: (state) => {
-        return state.chatUsers;
+        const res = [];
+        for (let item in state.chatUsers) {
+            res.push(state.chatUsers[item]);
+        }
+        return res;
     },
     getTypers: (state) => {
         return state.typers;
@@ -40,6 +44,9 @@ let getters = {
     },
     getConversationsUnreadCount: (state) => {
         return state.unreadMessages;
+    },
+    getLastFetchedConversations: (state) => {
+        return state.lastFetchedConversations;
     },
 };
 

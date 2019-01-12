@@ -255,7 +255,8 @@
                 connectivityModule.stopMonitoring();
             },
             handlePusher: function () {
-                this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
+                // this.setPusherChannel('selammobile-' + platform.device.uuid + '-' + platform.device.os.toLowerCase() + '-' + platform.device.region.split(' ').join("").toLowerCase());
+                this.setPusherChannel('selam-' + this.me.email);
                 try {
                     console.log('INITILISE PUSHER INSTANCE');
                     const pusher = new Pusher('596c2994bf87c324b33c', {
@@ -275,7 +276,6 @@
                         this.unreadMessages[data.data.conversation] += 1;
                         this.setBadgeNumber(0, this.countUnreadConversations);
                         this.updateConversationUnreadCount({ id:  data.data.conversation, count: 1});
-                        console.log(data.data);
                     });
                     pusher.subscribeToChannelEvent(this.getPusherChannel, 'typing', (error, data) => {
                         this.receivedTypingEvent(data.data);
